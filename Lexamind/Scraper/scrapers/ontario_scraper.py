@@ -14,6 +14,10 @@ import csv
 
 class Ontario( Scraper ):
 
+    def __init__(self):
+        super(Scraper, self).__init__()
+        self.legislature="Ontario"
+
     # Gets all the text from the detailed info page
     def Extract_Info_Ontario(url):
         try:
@@ -50,11 +54,11 @@ class Ontario( Scraper ):
     def Convert_to_csv(data, fileName = "test.csv"):
         csvfile = open(fileName, 'w', newline='')
         file = csv.writer(csvfile)
-        labels = ['id', 'title', 'date', 'stage', 'activity', 'committee', 'details']
+        labels = ['identifier', 'title', 'date', 'stage', 'activity', 'committee', 'details']
         file.writerow(labels)
         for row in data:
             text = []
-            text.append(row['id'])
+            text.append(row['identifier'])
             text.append(row['title'])
             text.append(row['date'][0])
             text.append(row['stage'][0])
@@ -126,7 +130,7 @@ class Ontario( Scraper ):
             # Data is separated by commas in the CSV so the commas are removed
             bill_info = {}
             # the id is bill73 for example
-            bill_info['id'] = bill.get("id").replace(","," ")
+            bill_info['identifier'] = self.legislature + bill.get("id").replace(","," ")
 
             # has the title and the url for the detailed data
             title_url = bill.find('a', href=True)
@@ -162,5 +166,7 @@ class Ontario( Scraper ):
             filename = filename.replace(" ", "_")
             filename += ".csv"
         Ontario.Convert_to_csv(data, filename)
+
+        self.bills=data
 
         return data

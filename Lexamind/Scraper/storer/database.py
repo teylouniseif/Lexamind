@@ -12,18 +12,40 @@ from pprint import pprint
 
 class Database( object ):
 
-    def addRecord(self, data, database_url="localhost:27017"):
-        print(json.dumps(data))
-        client = MongoClient(database_url)
-        db=client.Lexamind
-        record1 = db.Users
-        #page = open("test.json", 'r')
-        #parsed = json.loads(page.read())
+    collections=["Users", "Bills", "Laws"]
 
+    def createCollectionIdfromField(data, field):
+        converted_data=data
+        converted_data['_id']=data[field]
+        return converted_data
+
+    def findCollection( database, collection,  database_url="localhost:27017"):
+        client = MongoClient(database_url)
+        db=client[database]
+        col = db[collection]
+        return col
+
+    def addRecord( data, database, collection,  database_url="localhost:27017"):
+        #page = open("test.json", 'r')
+        print(json.dumps(data))
+        col=Database.findCollection(database, collection, database_url)
         #for item in parsed["Records"]:
-        record1.insert(data)
+        col.insert(data)
 
         #db=client.admin
         # Issue the serverStatus command and print the results
         #serverStatusResult=db.command("serverStatus")
         #pprint(serverStatusResult)
+
+    def deleteRecord( data, database, collection,  database_url="localhost:27017"):
+        print(json.dumps(data))
+        col=Database.findCollection(database, collection, database_url)
+        col.delete_one({'_id':data["_id"]})
+
+    def updateRecord( data, database, collection,  database_url="localhost:27017"):
+        col=Database.findCollection(database, collection, database_url)
+        col.replace_one({'_id':data["_id"]}, data)
+
+    def findRecord( id, database, collection,  database_url="localhost:27017"):
+        col=Database.findCollection(database, collection, database_url)
+        return col.find_one({'_id':id})
