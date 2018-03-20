@@ -10,6 +10,7 @@ from scrapers.version_converter import call_python_version
 from federal_scraper.federal_scraper import my_function
 from storer.database import Database
 import json
+import jsonpickle
 
 y=Ontario()
 y.retrieve_bills()
@@ -21,10 +22,12 @@ for bill in y.bills:
     record=Database.createCollectionIdfromField(bill, 'identifier')
     #x.deleteRecord(bill, "Lexamind", "Users")
     Database.addRecord(record, "Lexamind", "Users")
-    record['identifier']='noni'
+    bill.title='noni'
+    record=Database.createCollectionIdfromField(bill, 'identifier')
     Database.updateRecord(record, "Lexamind", "Users")
     newbill=Database.findRecord(record['_id'], "Lexamind", "Users")
-    print(json.dumps(newbill))
+    print(jsonpickle.decode(newbill['item']).title)
+    print(jsonpickle.decode(newbill['item']).events)
 
 #result = call_python_version("2.7", "scrapers.federal_scraper", "my_function",
 #                             ["Mr", "Bear"])

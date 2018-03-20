@@ -8,7 +8,7 @@ Created on Thu Jan  4 15:45:54 2018
 import urllib.request as urllib2
 from bs4 import BeautifulSoup
 import requests
-from .scraper_api import Scraper
+from .scraper_api import Scraper, Bill
 import csv
 
 
@@ -58,22 +58,22 @@ class Ontario( Scraper ):
         file.writerow(labels)
         for row in data:
             text = []
-            text.append(row['identifier'])
-            text.append(row['title'])
-            text.append(row['date'][0])
-            text.append(row['stage'][0])
-            text.append(row['activity'][0])
-            text.append(row['committee'][0])
-            text.append(str(row['details'].encode('utf-8')))
+            text.append(row.identifier)
+            text.append(row.title)
+            text.append(row.events[0]['date'])
+            text.append(row.events[0]['stage'])
+            text.append(row.events[0]['activity'])
+            text.append(row.events[0]['committee'])
+            text.append(str(row.details.encode('utf-8')))
             file.writerow(text)
             # if there are multiple rows
-            if len(row['date']) > 1:
-                for i in range(1, len(row['date'])):
+            if len(row.events) > 1:
+                for i in range(1, len(row.events)):
                     text = ["",""]
-                    text.append((row['date'][i]))
-                    text.append((row['stage'][i]))
-                    text.append(row['activity'][i])
-                    text.append(row['committee'][i])
+                    text.append((row.events[i]['date']))
+                    text.append((row.events[i]['stage']))
+                    text.append(row.events[i]['activity'])
+                    text.append(row.events[i]['committee'])
                     file.writerow(text)
 
         csvfile.close()
@@ -128,35 +128,32 @@ class Ontario( Scraper ):
             counter += 1
 
             # Data is separated by commas in the CSV so the commas are removed
-            bill_info = {}
+
             # the id is bill73 for example
-            bill_info['identifier'] = self.legislature + bill.get("id").replace(","," ")
+            identifier = self.legislature + bill.get("id").replace(","," ")
 
             # has the title and the url for the detailed data
             title_url = bill.find('a', href=True)
 
-            bill_info['title'] = title_url.text.strip().replace(","," ")
+            title = title_url.text.strip().replace(","," ")
 
-
-            bill_info['date'] = []
-            bill_info['stage'] = []
-            bill_info['activity'] = []
-            bill_info['committee'] = []
+            bill_info = Bill(identifier, title)
 
             # If there is more than one row in the table, save all rows
             # Each attribute is saved in a list for that attribute
             current_row = bill.findNext('tbody').find('tr')
             while current_row != None:
-                bill_info['date'].append(current_row.find('td', attrs = {'class' : "date"}).text.strip().replace(","," "))
-                bill_info['stage'].append(current_row.find('td', attrs = {'class' : "stage"}).text.strip().replace(","," "))
-                bill_info['activity'].append(current_row.find('td', attrs = {'class' : "activity"}).text.strip().replace(","," "))
-                bill_info['committee'].append(current_row.find('td', attrs = {'class' : "committee"}).text.strip().replace(","," "))
+                date = current_row.find('td', attrs = {'class' : "date"}).text.strip().replace(","," ")
+                stage = current_row.find('td', attrs = {'class' : "stage"}).text.strip().replace(","," ")
+                activity = current_row.find('td', attrs = {'class' : "activity"}).text.strip().replace(","," ")
+                committee = current_row.find('td', attrs = {'class' : "committee"}).text.strip().replace(","," ")
+                bill_info.addEvent(stage, date, activity, committee)
 
                 current_row = current_row.findNextSibling('tr')
 
             # Getting the url of the detailed info
             info_url = url_base + title_url['href']
-            bill_info['details'] = Ontario.Extract_Info_Ontario(info_url)
+            bill_info.setDetails(Ontario.Extract_Info_Ontario(info_url))
 
             data.append(bill_info)
 

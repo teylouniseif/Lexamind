@@ -4,6 +4,7 @@
 Created on Tue Jan  30 21:57:00 2018
 @author: Saif Kurdi-Teylouni
 """
+import jsonpickle
 import json
 from pymongo import MongoClient
 # pprint library is used to make the output look more pretty
@@ -15,8 +16,9 @@ class Database( object ):
     collections=["Users", "Bills", "Laws"]
 
     def createCollectionIdfromField(data, field):
-        converted_data=data
-        converted_data['_id']=data[field]
+        converted_data={}
+        converted_data['item']= jsonpickle.encode(data)
+        converted_data['_id']=field
         return converted_data
 
     def findCollection( database, collection,  database_url="localhost:27017"):
@@ -27,7 +29,7 @@ class Database( object ):
 
     def addRecord( data, database, collection,  database_url="localhost:27017"):
         #page = open("test.json", 'r')
-        print(json.dumps(data))
+        #print(json.dumps(data))
         col=Database.findCollection(database, collection, database_url)
         #for item in parsed["Records"]:
         col.insert(data)

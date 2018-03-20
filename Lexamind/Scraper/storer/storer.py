@@ -7,7 +7,7 @@ Created on Tue Jan  30 21:57:00 2018
 from .database import Database
 
 def storeBill(bill):
-    record=Database.createCollectionIdfromField(bill, 'identifier')
+    record=Database.createCollectionIdfromField(bill, bill.identifier)
     Database.addRecord(record, "Lexamind", "Bills")
 
 def retrieveBill(id):
