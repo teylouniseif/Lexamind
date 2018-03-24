@@ -15,11 +15,14 @@ class Database( object ):
 
     collections=["Users", "Bills", "Laws"]
 
-    def createCollectionIdfromField(data, field):
+    def createDocumentfromField(data, field):
         converted_data={}
         converted_data['item']= jsonpickle.encode(data)
         converted_data['_id']=field
         return converted_data
+
+    def returnObjfromDocument(document):
+        return jsonpickle.decode(document['item'])
 
     def findCollection( database, collection,  database_url="localhost:27017"):
         client = MongoClient(database_url)

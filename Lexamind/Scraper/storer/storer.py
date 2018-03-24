@@ -7,26 +7,39 @@ Created on Tue Jan  30 21:57:00 2018
 from .database import Database
 
 def storeBill(bill):
-    record=Database.createCollectionIdfromField(bill, bill.identifier)
+    record=Database.createDocumentfromField(bill, bill.identifier)
     Database.addRecord(record, "Lexamind", "Bills")
 
 def retrieveBill(id):
-    return Database.findRecord(id, "Lexamind", "Bills")
+    encodedbill=Database.findRecord(id, "Lexamind", "Bills")
+    if encodedbill==None:
+        return None
+    return Database.returnObjfromDocument(encodedbill)
 
 def storeUser(user):
-    record=Database.createCollectionIdfromField(user, 'identifier')
+    record=Database.createDocumentfromField(user, 'identifier')
     Database.addRecord(record, "Lexamind", "Users")
 
 def retrieveUser(id):
-    return Database.findRecord(id, "Lexamind", "Users")
+    encodeduser=Database.findRecord(id, "Lexamind", "Users")
+    if encodeduser==None:
+        return None
+    return Database.returnObjfromDocument(encodeduser)
 
 def storeLaw(law):
-    record=Database.createCollectionIdfromField(law, 'identifier')
+    record=Database.createDocumentfromField(law, law.identifier)
     Database.addRecord(record, "Lexamind", "Laws")
 
+def deleteLaw(law):
+    record=Database.createDocumentfromField(law, law.identifier)
+    Database.deleteRecord(record, "Lexamind", "Laws")
+
 def retrieveLaw(id):
-    return Database.findRecord(id, "Lexamind", "Laws")
+    encodedlaw=Database.findRecord(id, "Lexamind", "Laws")
+    if encodedlaw==None:
+        return None
+    return Database.returnObjfromDocument(encodedlaw)
 
 def updateLaw(law):
-    record=Database.createCollectionIdfromField(law, 'identifier')
+    record=Database.createDocumentfromField(law, law.identifier)
     Database.updateRecord(record, "Lexamind", "Laws")

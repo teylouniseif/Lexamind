@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 import requests
 from .scraper_api import Scraper, Bill
 import csv
-
+import chardet
 
 class Ontario( Scraper ):
 
@@ -45,6 +45,12 @@ class Ontario( Scraper ):
             all_text = wordSection.find_all("span")
             for txt in all_text:
                 text += txt.text
+                text = text.replace('\\xa0', ' ')
+                text = text.replace('\\xc2', ' ')
+                text = text.replace('\\n', '\n')
+                text = text.replace('"','')
+                text = text.replace('"','')
+                text = text.replace("b'", "")
                 text += "\n"
             i += 1
         return text
@@ -120,7 +126,7 @@ class Ontario( Scraper ):
 
         counter = 1
         for bill in bills:
-            if counter != 1:
+            if counter > 3:
                 continue
 
             if counter % 10 == 0:
@@ -154,6 +160,8 @@ class Ontario( Scraper ):
             # Getting the url of the detailed info
             info_url = url_base + title_url['href']
             bill_info.setDetails(Ontario.Extract_Info_Ontario(info_url))
+
+            #print(bill_info.details)
 
             data.append(bill_info)
 
