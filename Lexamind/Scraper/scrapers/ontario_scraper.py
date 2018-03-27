@@ -10,9 +10,12 @@ from bs4 import BeautifulSoup
 import requests
 from .scraper_api import Scraper, Bill
 import csv
-import chardet
+import re
 
 class Ontario( Scraper ):
+
+    rgx_modified_title = '.*Loi modifiant.*'
+    law_delimiter_str="et"
 
     def __init__(self):
         super(Scraper, self).__init__()
@@ -45,6 +48,9 @@ class Ontario( Scraper ):
             all_text = wordSection.find_all("span")
             for txt in all_text:
                 text += txt.text
+                print(type(txt.text))
+                #encoding = chardet.detect(txt.text)
+                #print(encoding['encoding'])
                 text = text.replace('\\xa0', ' ')
                 text = text.replace('\\xc2', ' ')
                 text = text.replace('\\n', '\n')
@@ -70,7 +76,7 @@ class Ontario( Scraper ):
             text.append(row.events[0]['stage'])
             text.append(row.events[0]['activity'])
             text.append(row.events[0]['committee'])
-            text.append(str(row.details.encode('utf-8')))
+            text.append(str(row.details))
             file.writerow(text)
             # if there are multiple rows
             if len(row.events) > 1:
@@ -126,8 +132,8 @@ class Ontario( Scraper ):
 
         counter = 1
         for bill in bills:
-            if counter > 3:
-                continue
+            #if counter > 3:
+                #continue
 
             if counter % 10 == 0:
                 print("Currently at bill " + str(counter))
@@ -161,6 +167,8 @@ class Ontario( Scraper ):
             info_url = url_base + title_url['href']
             bill_info.setDetails(Ontario.Extract_Info_Ontario(info_url))
 
+            self.scrapeLawsinBill(bill_info)
+
             #print(bill_info.details)
 
             data.append(bill_info)
@@ -175,3 +183,16 @@ class Ontario( Scraper ):
         self.bills=data
 
         return data
+
+    def scrapeLawsinBill(self, bill):
+        modification = re.findall(Ontario.rgx_modified_title, bill.details)
+        if modification==None:
+            return
+        else:
+            for match in modification:
+                modifiedstripped=match.split('modifiant')[1]
+                modifiedLaws = modifiedstripped.split(Ontario.law_delimiter_str)
+                for modifiedLaw in modifiedLaws:
+                    if modifiedLaw.find('Loi')!=-1 or modifiedLaw.find('Code')!=-1:
+                        print(modifiedLaw)
+                        bill.addLaw(modifiedLaw)

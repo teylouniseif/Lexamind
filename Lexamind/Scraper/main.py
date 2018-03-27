@@ -13,11 +13,17 @@ import json
 import jsonpickle
 
 y=Ontario()
-y.retrieve_bills()
-y.store_bills()
-newbill=Database.findRecord("Perospero", "Lexamind", "Laws")
+y.load_bills()
+#y.retrieve_bills()
+#y.store_bills()
+"""newbill=Database.findRecord("Perospero", "Lexamind", "Laws")
 print(jsonpickle.decode(newbill['item']).title)
-print(jsonpickle.decode(newbill['item']).billtitles)
+#print(jsonpickle.decode(newbill['item']).billtitles)
+newbill=Database.findRecord("Ontariobill1", "Lexamind", "Bills")
+print(jsonpickle.decode(newbill['item']).title)
+details=jsonpickle.decode(newbill['item']).details
+print('littlenoni')
+print(str(details, 'utf-8'))"""
 #y.store_bills()
 #data=Ontario()
 x=Database()
@@ -31,7 +37,7 @@ x=Database()
     Database.updateRecord(record, "Lexamind", "Users")
     newbill=Database.findRecord(record['_id'], "Lexamind", "Users")
     print(jsonpickle.decode(newbill['item']).title)
-    print(jsonpickle.decode(newbill['item']).events)"""
+    print(jsonpickle.decode(newbill['item']).details)"""
 
 #result = call_python_version("2.7", "scrapers.federal_scraper", "my_function",
 #                             ["Mr", "Bear"])

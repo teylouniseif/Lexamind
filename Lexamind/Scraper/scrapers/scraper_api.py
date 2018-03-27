@@ -4,9 +4,9 @@
 Created on Tue Jan  30 21:57:00 2018
 @author: Saif Kurdi-Teylouni
 """
-from storer.storer import storeBill, storeLaw, deleteLaw, retrieveLaw, updateLaw
+from storer.storer import storeBill, retrieveBillsByLegislature, storeLaw, deleteLaw, retrieveLaw, updateLaw
 from collections import namedtuple
-import jsonpickle
+import jsonpickle, re
 
 class Bill( object):
 
@@ -19,7 +19,7 @@ class Bill( object):
     def __init__(self, identifier, title):
         self.title=title
         self.identifier=identifier
-        self.lawnames=["Perospero", "Katakuri", "Oven", "Smoothie", "Daifuku", "Compote", "Cracker", "Snack"]
+        self.lawnames=[]
         self.events=[]
         self.details=''
 
@@ -46,10 +46,10 @@ class Law( object):
     def __init__(self, identifier, title):
         self.title=title
         self.identifier=identifier
-        self.billtitles=[]
+        self.bills={}
 
-    def addBillTitle(self, billtitle):
-        self.billtitles.append(billtitle)
+    def addDependentBill(self, bill):
+        self.bills[bill.identifier]=bill.title
 
 
 class Scraper( object ):
@@ -59,12 +59,19 @@ class Scraper( object ):
 
     def __init__(self):
         self.bills=[]
+        self.legislature=""
 
     def retrieve_bills( self , filename):
         pass
 
     def format_bills(self, collection):
         pass
+
+    def load_bills(self):
+        self.bills=retrieveBillsByLegislature(self.legislature)
+        for bill in self.bills:
+            for law in bill.lawnames:
+                print(law)
 
     def store_bills(self):
         for bill in self.bills:
@@ -74,9 +81,11 @@ class Scraper( object ):
                 law=Law(lawname, lawname)
                 cachedLaw=retrieveLaw(lawname)
                 if cachedLaw==None:
-                    law.addBillTitle(bill.title)
+                    law.addDependentBill(bill)
                     storeLaw(law)
                 else:
-                    print(cachedLaw.billtitles)
-                    cachedLaw.addBillTitle(bill.title)
+                    cachedLaw.addDependentBill(bill)
                     updateLaw(cachedLaw)
+
+    def scrapeLawsinBill(self, bill):
+        pass

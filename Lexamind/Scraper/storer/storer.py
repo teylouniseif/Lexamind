@@ -7,6 +7,7 @@ Created on Tue Jan  30 21:57:00 2018
 from .database import Database
 
 def storeBill(bill):
+    bill.details=bill.details.encode('utf-8')
     record=Database.createDocumentfromField(bill, bill.identifier)
     Database.addRecord(record, "Lexamind", "Bills")
 
@@ -14,7 +15,20 @@ def retrieveBill(id):
     encodedbill=Database.findRecord(id, "Lexamind", "Bills")
     if encodedbill==None:
         return None
-    return Database.returnObjfromDocument(encodedbill)
+    bill=Database.returnObjfromDocument(encodedbill)
+    bill.details=bill.details.decode()
+    return bill
+
+def retrieveBillsByLegislature(legislature):
+    encodedbills=Database.findAllRecordsBySubstringMatch(legislature , "Lexamind", "Bills")
+    if encodedbills==None:
+        return None
+    bills=[]
+    for encodedbill in encodedbills:
+        bill=Database.returnObjfromDocument(encodedbill)
+        bill.details=bill.details.decode()
+        bills.append(bill)
+    return bills
 
 def storeUser(user):
     record=Database.createDocumentfromField(user, 'identifier')

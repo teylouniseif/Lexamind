@@ -54,3 +54,7 @@ class Database( object ):
     def findRecord( id, database, collection,  database_url="localhost:27017"):
         col=Database.findCollection(database, collection, database_url)
         return col.find_one({'_id':id})
+
+    def findAllRecordsBySubstringMatch( substring, database, collection,  database_url="localhost:27017"):
+        col=Database.findCollection(database, collection, database_url)
+        return col.find({'_id': { '$regex' : substring}})
