@@ -76,7 +76,7 @@ class Ontario( Scraper ):
             text.append(row.events[0]['stage'])
             text.append(row.events[0]['activity'])
             text.append(row.events[0]['committee'])
-            text.append(str(row.details))
+            text.append(str(row.details.encode('utf-8')))
             file.writerow(text)
             # if there are multiple rows
             if len(row.events) > 1:

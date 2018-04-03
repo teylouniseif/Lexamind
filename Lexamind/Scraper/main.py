@@ -6,16 +6,18 @@ Created on Tue Jan  30 21:57:00 2018
 """
 
 from scrapers.ontario_scraper import Ontario
+from scrapers.alberta_scraper import Alberta
+from scrapers.newfoundland_scraper import Newfoundland
 from scrapers.version_converter import call_python_version
 from federal_scraper.federal_scraper import my_function
 from storer.database import Database
 import json
 import jsonpickle
 
-y=Ontario()
-y.load_bills()
-#y.retrieve_bills()
-#y.store_bills()
+y=Newfoundland()
+#y.load_bills()
+y.retrieve_bills()
+y.store_bills()
 """newbill=Database.findRecord("Perospero", "Lexamind", "Laws")
 print(jsonpickle.decode(newbill['item']).title)
 #print(jsonpickle.decode(newbill['item']).billtitles)

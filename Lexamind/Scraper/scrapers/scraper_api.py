@@ -35,7 +35,8 @@ class Bill( object):
         self.details=details
 
     def addLaw(self, law):
-        self.lawnames.append(law)
+        sanitizedlaw=str(law.strip().lower())
+        self.lawnames.append(sanitizedlaw)
 
 class Law( object):
 

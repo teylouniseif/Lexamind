@@ -9,7 +9,8 @@ from .database import Database
 def storeBill(bill):
     bill.details=bill.details.encode('utf-8')
     record=Database.createDocumentfromField(bill, bill.identifier)
-    Database.addRecord(record, "Lexamind", "Bills")
+    if(retrieveBill(bill.identifier)==None):
+        Database.addRecord(record, "Lexamind", "Bills")
 
 def retrieveBill(id):
     encodedbill=Database.findRecord(id, "Lexamind", "Bills")
@@ -43,6 +44,7 @@ def retrieveUser(id):
 def storeLaw(law):
     record=Database.createDocumentfromField(law, law.identifier)
     Database.addRecord(record, "Lexamind", "Laws")
+    #Database.createSearchIndexfromRecord(law.identifier, "Lexamind", "Laws")
 
 def deleteLaw(law):
     record=Database.createDocumentfromField(law, law.identifier)

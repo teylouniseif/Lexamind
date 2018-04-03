@@ -58,3 +58,11 @@ class Database( object ):
     def findAllRecordsBySubstringMatch( substring, database, collection,  database_url="localhost:27017"):
         col=Database.findCollection(database, collection, database_url)
         return col.find({'_id': { '$regex' : substring}})
+
+    def findRecordByStringOverlapMatch( substring, database, collection,  database_url="localhost:27017"):
+        col=Database.findCollection(database, collection, database_url)
+        return col.find_one({'$text': {'$search': substring}})
+
+    def createSearchIndexfromRecord( string, database, collection,  database_url="localhost:27017"):
+        col=Database.findCollection(database, collection, database_url)
+        return col.create_index([('_id',pymongo.TEXT)])
