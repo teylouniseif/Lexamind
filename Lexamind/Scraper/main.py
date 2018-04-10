@@ -7,6 +7,7 @@ Created on Tue Jan  30 21:57:00 2018
 
 from scrapers.ontario_scraper import Ontario
 from scrapers.alberta_scraper import Alberta
+from scrapers.assnat_scraper import Quebec
 from scrapers.newfoundland_scraper import Newfoundland
 from scrapers.version_converter import call_python_version
 from federal_scraper.federal_scraper import my_function
@@ -14,7 +15,7 @@ from storer.database import Database
 import json
 import jsonpickle
 
-y=Newfoundland()
+y=Alberta()
 #y.load_bills()
 y.retrieve_bills()
 y.store_bills()

@@ -12,6 +12,8 @@ from .scraper_api import Scraper, Bill
 
 class Newfoundland( Scraper ):
 
+    stages=["First Reading","Second Reading","Committee","Amendments","Third Reading","Royal Assent"]
+
     def __init__(self):
         super(Scraper, self).__init__()
         self.legislature="Newfoundland"
@@ -105,7 +107,11 @@ class Newfoundland( Scraper ):
 
             bill_info = Bill(self.legislature+cols[0].text, cols[1].text)
 
-            for c in cols:
+            stageid= 0
+            for c in cols[2:7]:
+                if c!="&nbsp;":
+                    bill_info.addEvent(Newfoundland.stages[stageid], c.text, None, None)
+                stageid+=1
                 bill_data.append(c.text)
 
             if cols[1].find('a') != None:
@@ -192,3 +198,16 @@ class Newfoundland( Scraper ):
             data.append(row)
         csvfile.close()
         return data
+
+    def scrapeLawsinBill(self, bill):
+        modification = re.findall(Newfoundland.rgx_modified_title, bill.details)
+        if modification==None:
+            return
+        else:
+            for match in modification:
+                modifiedstripped=match.split('modifiant')[1]
+                modifiedLaws = modifiedstripped.split(Newfoundland.law_delimiter_str)
+                for modifiedLaw in modifiedLaws:
+                    if modifiedLaw.find('Loi')!=-1 or modifiedLaw.find('Code')!=-1:
+                        print(modifiedLaw)
+                        bill.addLaw(modifiedLaw)

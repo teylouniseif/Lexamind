@@ -11,10 +11,13 @@ from urllib.request import Request, urlopen
 from PyPDF2 import PdfFileReader
 from io import BytesIO
 testing = False
+import re
 
 from .scraper_api import Scraper, Bill
 
 class Alberta( Scraper ):
+
+    rgx_modified_title = '.*is\s*amended\s*by\s*this.*'
 
     def __init__(self):
         super(Scraper, self).__init__()
@@ -73,14 +76,14 @@ class Alberta( Scraper ):
                 urls.append(cols[2].find('a')['href'])
 
         for url in urls:
-            data += Alberta.Legislature(base + url)
+            data += self.Legislature(base + url)
 
         self.bills=data
 
         #Convert_To_Csv(data)
         return data
 
-    def Legislature(url):
+    def Legislature(self, url):
         data = []
 
         base = "https://www.assembly.ab.ca/net/"
@@ -101,6 +104,7 @@ class Alberta( Scraper ):
             details = Alberta.Find_Details(detailed_url)
 
             bill_info.setDetails(details)
+            self.scrapeLawsinBill(bill_info)
 
             # Now the info contains the bill history
             info = info.findNextSibling('tr')
@@ -110,14 +114,24 @@ class Alberta( Scraper ):
             # The data is always in the order:
             # First Reading, Second Reading, Committee of the Whole, Third Reading, Royal Assent
             row.append(readings.split('First Reading')[1].split('Second Reading')[0])
+            date=readings.split('First Reading')[1].split('Second Reading')[0]
+            bill_info.addEvent("First Reading", date, None, None)
             if 'Second Reading' in readings:
                     row.append(readings.split('Second Reading')[1].split('Committee of the Whole')[0])
+                    date=readings.split('Second Reading')[1].split('Committee of the Whole')[0]
+                    bill_info.addEvent("Second Reading", date, None, None)
                     if 'Committee of the Whole' in readings:
                         row.append(readings.split('Committee of the Whole')[1].split('Third Reading')[0])
+                        date=readings.split('Committee of the Whole')[1].split('Third Reading')[0]
+                        bill_info.addEvent("Committee of the Whole", date, None, None)
                         if 'Third Reading' in readings:
                             row.append(readings.split('Third Reading')[1].split('Royal Assent')[0])
+                            date=readings.split('Third Reading')[1].split('Royal Assent')[0]
+                            bill_info.addEvent("Third Reading", date, None, None)
                             if 'Royal Assent' in readings:
                                 row.append(readings.split('Royal Assent')[1])
+                                date=readings.split('Royal Assent')[1]
+                                bill_info.addEvent("Royal Assent", date, None, None)
 
             #bill_info.addEvent(stage, date, activity, committee)
 
@@ -161,7 +175,7 @@ class Alberta( Scraper ):
 
         for pageNum in range(pdfFile.getNumPages()):
                 currentPage = pdfFile.getPage(pageNum)
-                data += currentPage.extractText()
+                data += currentPage.extractText()#.replace("\n", "\s")
 
         return data
 
@@ -200,3 +214,14 @@ class Alberta( Scraper ):
             data.append(row)
         csvfile.close()
         return data
+
+    def scrapeLawsinBill(self, bill):
+        modification = re.findall(Alberta.rgx_modified_title, bill.details)
+        #print(modification)
+        if modification==None:
+            return
+        else:
+            for match in modification:
+                modifiedLaw=re.split(Alberta.rgx_modified_title, match)[0]
+                print(modifiedLaw)
+                bill.addLaw(modifiedLaw)
