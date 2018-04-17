@@ -17,7 +17,7 @@ from .scraper_api import Scraper, Bill
 
 class Alberta( Scraper ):
 
-    rgx_modified_title = '.*is\s*amended\s*by\s*this.*'
+    rgx_modified_title = r"[^\r\n]*"#'.*amended.*'#'.*is\s*amended\s*by\s*this.*'
 
     def __init__(self):
         super(Scraper, self).__init__()
@@ -93,12 +93,21 @@ class Alberta( Scraper ):
             return data
 
         info = soup.find('tr', attrs = {'class': 'trtitle'})
+        counter=0
         while info != None:
+            counter+=1
+            #if counter!=1:
+            #    continue
             row = []
             # Contains the title
             row.append(info.text)
 
-            bill_info = Bill(self.legislature+info.text, info.text)
+            id=info.text
+            for s in info.text.split():
+                if s.isdigit():
+                    id=s
+                    break
+            bill_info = Bill(self.legislature+id, info.text)
 
             detailed_url = base + str((info.find('a')['href']))
             details = Alberta.Find_Details(detailed_url)
@@ -216,12 +225,42 @@ class Alberta( Scraper ):
         return data
 
     def scrapeLawsinBill(self, bill):
-        modification = re.findall(Alberta.rgx_modified_title, bill.details)
-        #print(modification)
+        """modification = re.findall(Alberta.rgx_modified_title, bill.details)
         if modification==None:
             return
         else:
             for match in modification:
-                modifiedLaw=re.split(Alberta.rgx_modified_title, match)[0]
-                print(modifiedLaw)
-                bill.addLaw(modifiedLaw)
+                modifiedstripped=match.split('amended')[0]
+                if modifiedstripped!=None and modifiedstripped.find('Act')!=-1 and modifiedstripped.find('Act')!=0:
+                    print(modifiedstripped.split('Act')[0]+'Act')
+                    bill.addLaw(modifiedstripped.split('Act')[0]+'Act')"""
+        modification = re.findall(Alberta.rgx_modified_title, bill.details)
+        if modification==None:
+            return
+        else:
+            previousmatch=None
+            for match in modification:
+                modifiedstripped=re.search('.*amended.*', match)
+                #modifiedstripped=match.search('amended')
+                if modifiedstripped==None:
+                    continue
+                else:
+                    modifiedstripped=match.split('amended')[0]
+                    if modifiedstripped.find('Act')==-1 and previousmatch!=None:
+                        modifiedstripped=previousmatch
+                    if modifiedstripped.find('Act')!=-1 and modifiedstripped.find('the Act')==-1 and modifiedstripped.find('this Act')==-1:
+                        modifiedstripped2=modifiedstripped.split('Act')[0]
+                        modifiedstripped3=modifiedstripped2.split('the')
+                        modifiedstripped4=modifiedstripped3[len(modifiedstripped3)-1]
+                        print(modifiedstripped4+'Act'+ bill.identifier)
+                        bill.addLaw(modifiedstripped4+'Act')
+                previousmatch=match
+            """for match in modification:
+                modifiedstripped=match.split('amended')[0]
+                if modifiedstripped!=None and modifiedstripped.find('Act')!=-1 and modifiedstripped.find('Act')!=0:
+                    if modifiedstripped.find('the Act')==-1:
+                        modifiedstripped2=modifiedstripped.split('Act')[0]
+                        modifiedstripped3=modifiedstripped2.split('the')
+                        modifiedstripped4=modifiedstripped3[len(modifiedstripped3)-1]
+                        print(modifiedstripped4+'Act'+ bill.identifier)
+                        bill.addLaw(modifiedstripped4+'Act')"""

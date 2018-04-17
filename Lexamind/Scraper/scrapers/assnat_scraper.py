@@ -19,9 +19,9 @@ from .scraper_api import Scraper, Bill
 
 class Quebec( Scraper ):
 
-    RELEVANCYSTRING="(^loi(s)?|^règlement(s)?)\s+(modifié(e)(s)?|remplacé(e)(s)?|abrogé(e)(s)?).*"
-    MOFIFIEDLAWSTRINGSTART="^–.*"
-    MOFIFIEDLAWSTRINGEND=".*;\s*$|.*\.\s*$"
+    RELEVANCYSTRING=r"(^LOI(S)?|^RÈGLEMENT(S)?)\s+(MODIFIÉ(E)(S)?|REMPLACÉ(E)(S)?|ABROGÉ(E)(S)?).*"
+    MOFIFIEDLAWSTRINGSTART=".*Loi.*|.*Code.*|.*Règlement.*|.*Charte.*"
+    MOFIFIEDLAWSTRINGEND=r".*;\s*$|.*\.\s*$"
 
     def __init__(self):
         super(Scraper, self).__init__()
@@ -359,47 +359,51 @@ class Quebec( Scraper ):
 
     def scrapeLawsinBill(self, bill):
         index=0
-        lawstrings = re.compile("[\r\n]+").split(bill.details.lower())
+        text=bill.details#.lower()
+        text2=str(text.encode('utf-8'))
+        lawstrings = re.compile(r"[\r\n]+").split(text)
+        print(lawstrings)
         print (len(lawstrings))
         while index < len(lawstrings):
 
             index+=1
-            str=lawstrings[index]
+            strg=lawstrings[index]
 
-            if str.isdigit() or str.strip()=='':
+            if strg.isdigit() or strg.strip()=='':
                 continue
 
-            if not re.compile(Quebec.RELEVANCYSTRING).search(str):
+            if not re.compile(Quebec.RELEVANCYSTRING).search(strg):
                 continue
 			#this bill at this point affect laws or regulations that are (repeal, amendment or replacement)
             else:
                 print('noni')
                 law=""
                 index+=1
-                str=lawstrings[index]
-                print(str)
-                while re.compile(Quebec.MOFIFIEDLAWSTRINGSTART).search(str)!=None:
+                strg=lawstrings[index]
+                print(strg)
+                while re.compile(Quebec.MOFIFIEDLAWSTRINGSTART).search(strg)!=None:
                     #at this point check that law affected is one that we are interested in
-                    law+=str
+                    law+=strg
+                    print(law)
 					#System.out.println(str);
 					#here certain laws modified can span more than one line
 					#use semi-colon or dot at end of line as delimiter of law changed
-                    while re.compile(Quebec.MOFIFIEDLAWSTRINGEND).search(str)==None:
+                    while re.compile(Quebec.MOFIFIEDLAWSTRINGEND).search(strg)==None:
                         index+=1
-                        str=lawstrings[index]
-                        law+=str
+                        strg=lawstrings[index]
+                        law+=strg
 
                     index+=1
-                    str=lawstrings[index]
+                    strg=lawstrings[index]
 
-                    bill.addLaw(law.split("^–\\s|\\s\\(|;")[1])
+                    bill.addLaw(law)#.split(".*œ\s|\s\(|;")[1])
 
-                    while str.isdigit() or str.strip()=='':
+                    while strg.isdigit() or strg.strip()=='':
                         index+=1
-                        str=lawstrings[index]
+                        strg=lawstrings[index]
 
-                    if re.compile(Quebec.RELEVANCYSTRING).search(str)!=None:
+                    if re.compile(Quebec.RELEVANCYSTRING).search(strg)!=None:
                         index+=1
-                        str=lawstrings[index]
+                        strg=lawstrings[index]
 
                     law=""

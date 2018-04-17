@@ -6,11 +6,13 @@ Created on Sun Jan 14 12:52:44 2018
 import urllib.request as urllib2
 from bs4 import BeautifulSoup
 import requests
-import csv
+import csv, re
 
 from .scraper_api import Scraper, Bill
 
 class Newfoundland( Scraper ):
+
+    rgx_modified_title = r"[^\r\n]*"#'.*amended.*|.*repealed.*'#'.*is\s*amended\s*by\s*this.*'
 
     stages=["First Reading","Second Reading","Committee","Amendments","Third Reading","Royal Assent"]
 
@@ -76,6 +78,7 @@ class Newfoundland( Scraper ):
         #Newfoundland.Convert_to_csv(data, fileName = filename)
 
         self.bills=data
+
         return data
 
     def Get_Session(self, url):
@@ -120,6 +123,7 @@ class Newfoundland( Scraper ):
                 bill_data.append(details[1])
                 text=details[0]+details[1]
                 bill_info.setDetails(text)
+                self.scrapeLawsinBill(bill_info)
             else:
                 # If there is no link to bill text, fill the details with ""
                 bill_data.append("")
@@ -200,14 +204,37 @@ class Newfoundland( Scraper ):
         return data
 
     def scrapeLawsinBill(self, bill):
-        modification = re.findall(Newfoundland.rgx_modified_title, bill.details)
+        """modification = re.findall(Newfoundland.rgx_modified_title, bill.details)
         if modification==None:
             return
         else:
             for match in modification:
-                modifiedstripped=match.split('modifiant')[1]
-                modifiedLaws = modifiedstripped.split(Newfoundland.law_delimiter_str)
-                for modifiedLaw in modifiedLaws:
-                    if modifiedLaw.find('Loi')!=-1 or modifiedLaw.find('Code')!=-1:
-                        print(modifiedLaw)
-                        bill.addLaw(modifiedLaw)
+                modifiedstripped=match.split('amended')[0]
+                if modifiedstripped!=None and modifiedstripped.find('Act')!=-1 and modifiedstripped.find('Act')!=0:
+                    if modifiedstripped.find('the Act')==-1:
+                        modifiedstripped2=modifiedstripped.split('Act')[0]
+                        modifiedstripped3=modifiedstripped2.split('the')
+                        modifiedstripped4=modifiedstripped3[len(modifiedstripped3)-1]
+                        print(modifiedstripped4+'Act'+bill.identifier)
+                        bill.addLaw(modifiedstripped4+'Act')"""
+        modification = re.findall(Newfoundland.rgx_modified_title, bill.details)
+        if modification==None:
+            return
+        else:
+            previousmatch=None
+            for match in modification:
+                modifiedstripped=re.search('.*amended.*|.*repealed.*', match)
+                #modifiedstripped=match.search('amended')
+                if modifiedstripped==None:
+                    continue
+                else:
+                    modifiedstripped=match.split('amended')[0]
+                    if modifiedstripped.find('Act')==-1 and previousmatch!=None:
+                        modifiedstripped=previousmatch
+                    if modifiedstripped.find('Act')!=-1 and modifiedstripped.find('the Act')==-1 and modifiedstripped.find('this Act')==-1:
+                        modifiedstripped2=modifiedstripped.split('Act')[0]
+                        modifiedstripped3=modifiedstripped2.split('the')
+                        modifiedstripped4=modifiedstripped3[len(modifiedstripped3)-1]
+                        print(modifiedstripped4+'Act'+ bill.identifier)
+                        bill.addLaw(modifiedstripped4+'Act')
+                previousmatch=match
