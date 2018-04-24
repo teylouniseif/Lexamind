@@ -52,6 +52,9 @@ class Law( object):
     def addDependentBill(self, bill):
         self.bills[bill.identifier]=bill.title
 
+    def getDependantBills(self):
+        return self.bills
+
 
 class Scraper( object ):
 

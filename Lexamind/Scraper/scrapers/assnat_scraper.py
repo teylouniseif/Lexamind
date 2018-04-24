@@ -19,8 +19,8 @@ from .scraper_api import Scraper, Bill
 
 class Quebec( Scraper ):
 
-    RELEVANCYSTRING=r"(^LOI(S)?|^RÈGLEMENT(S)?)\s+(MODIFIÉ(E)(S)?|REMPLACÉ(E)(S)?|ABROGÉ(E)(S)?).*"
-    MOFIFIEDLAWSTRINGSTART=".*Loi.*|.*Code.*|.*Règlement.*|.*Charte.*"
+    RELEVANCYSTRING=r"(^loi(s)?|^règlement(s)?)\s+(modifié(e)(s)?|remplacé(e)(s)?|abrogé(e)(s)?).*"
+    MOFIFIEDLAWSTRINGSTART=r"(^loi|^code|^règlement|^charte).*"
     MOFIFIEDLAWSTRINGEND=r".*;\s*$|.*\.\s*$"
 
     def __init__(self):
@@ -359,7 +359,7 @@ class Quebec( Scraper ):
 
     def scrapeLawsinBill(self, bill):
         index=0
-        text=bill.details#.lower()
+        text=bill.details.lower()
         text2=str(text.encode('utf-8'))
         lawstrings = re.compile(r"[\r\n]+").split(text)
         print(lawstrings)
@@ -372,7 +372,7 @@ class Quebec( Scraper ):
             if strg.isdigit() or strg.strip()=='':
                 continue
 
-            if not re.compile(Quebec.RELEVANCYSTRING).search(strg):
+            if re.compile(Quebec.RELEVANCYSTRING).search(strg)==None:
                 continue
 			#this bill at this point affect laws or regulations that are (repeal, amendment or replacement)
             else:
@@ -380,11 +380,11 @@ class Quebec( Scraper ):
                 law=""
                 index+=1
                 strg=lawstrings[index]
-                print(strg)
+                #print(strg)
                 while re.compile(Quebec.MOFIFIEDLAWSTRINGSTART).search(strg)!=None:
                     #at this point check that law affected is one that we are interested in
                     law+=strg
-                    print(law)
+                    print(law+" start")
 					#System.out.println(str);
 					#here certain laws modified can span more than one line
 					#use semi-colon or dot at end of line as delimiter of law changed
@@ -392,6 +392,7 @@ class Quebec( Scraper ):
                         index+=1
                         strg=lawstrings[index]
                         law+=strg
+                        print(law+" end")
 
                     index+=1
                     strg=lawstrings[index]
@@ -405,5 +406,8 @@ class Quebec( Scraper ):
                     if re.compile(Quebec.RELEVANCYSTRING).search(strg)!=None:
                         index+=1
                         strg=lawstrings[index]
+
+                    print("noni2")
+                    print(strg)
 
                     law=""

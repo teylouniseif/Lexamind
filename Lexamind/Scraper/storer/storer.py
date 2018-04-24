@@ -41,6 +41,16 @@ def retrieveUser(id):
         return None
     return Database.returnObjfromDocument(encodeduser)
 
+def retrieveUsersByTeam(team):
+    encodedusers=Database.findAllRecordsBySubstringMatch(team , "Lexamind", "Users")
+    if encodedusers==None:
+        return None
+    users=[]
+    for encodeduser in encodedusers:
+        user=Database.returnObjfromDocument(encodeduser)
+        users.append(user)
+    return users
+
 def storeLaw(law):
     record=Database.createDocumentfromField(law, law.identifier)
     Database.addRecord(record, "Lexamind", "Laws")
@@ -59,3 +69,15 @@ def retrieveLaw(id):
 def updateLaw(law):
     record=Database.createDocumentfromField(law, law.identifier)
     Database.updateRecord(record, "Lexamind", "Laws")
+
+def storeArchive(archive):
+    pass
+
+def deleteArchive(archive):
+    pass
+
+def retrieveArchive(id):
+    pass
+
+def updateArchive(archive):
+    pass
