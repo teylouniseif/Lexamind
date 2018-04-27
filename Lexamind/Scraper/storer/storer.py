@@ -32,7 +32,7 @@ def retrieveBillsByLegislature(legislature):
     return bills
 
 def storeUser(user):
-    record=Database.createDocumentfromField(user, 'identifier')
+    record=Database.createDocumentfromField(user, user.identifier)
     Database.addRecord(record, "Lexamind", "Users")
 
 def retrieveUser(id):
@@ -42,7 +42,10 @@ def retrieveUser(id):
     return Database.returnObjfromDocument(encodeduser)
 
 def retrieveUsersByTeam(team):
-    encodedusers=Database.findAllRecordsBySubstringMatch(team , "Lexamind", "Users")
+    if team==None:
+        encodedusers=Database.findAllRecords("Lexamind", "Users")
+    else:
+        encodedusers=Database.findAllRecordsBySubstringMatch(team , "Lexamind", "Users")
     if encodedusers==None:
         return None
     users=[]
@@ -71,13 +74,19 @@ def updateLaw(law):
     Database.updateRecord(record, "Lexamind", "Laws")
 
 def storeArchive(archive):
-    pass
+    record=Database.createDocumentfromField(archive, archive.identifier)
+    Database.addRecord(record, "Lexamind", "Archives")
 
 def deleteArchive(archive):
-    pass
+    record=Database.createDocumentfromField(archive, archive.identifier)
+    Database.deleteRecord(record, "Lexamind", "Archives")
 
 def retrieveArchive(id):
-    pass
+    encodedarchive=Database.findRecord(id, "Lexamind", "Archives")
+    if encodedlaw==None:
+        return None
+    return Database.returnObjfromDocument(encodedarchive)
 
 def updateArchive(archive):
-    pass
+    record=Database.createDocumentfromField(archive, archive.identifier)
+    Database.updateRecord(record, "Lexamind", "Archives")

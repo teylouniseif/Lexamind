@@ -33,6 +33,7 @@ class Database( object ):
     def addRecord( data, database, collection,  database_url="localhost:27017"):
         #page = open("test.json", 'r')
         #print(json.dumps(data))
+        #col=Database.findCollection(database, collection, database_url)
         col=Database.findCollection(database, collection, database_url)
         #for item in parsed["Records"]:
         col.insert(data)
@@ -58,6 +59,10 @@ class Database( object ):
     def findAllRecordsBySubstringMatch( substring, database, collection,  database_url="localhost:27017"):
         col=Database.findCollection(database, collection, database_url)
         return col.find({'_id': { '$regex' : substring}})
+
+    def findAllRecords( database, collection,  database_url="localhost:27017"):
+        col=Database.findCollection(database, collection, database_url)
+        return col.find({})
 
     def findRecordByStringOverlapMatch( substring, database, collection,  database_url="localhost:27017"):
         col=Database.findCollection(database, collection, database_url)

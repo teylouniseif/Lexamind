@@ -9,15 +9,17 @@ from scrapers.ontario_scraper import Ontario
 from scrapers.alberta_scraper import Alberta
 from scrapers.assnat_scraper import Quebec
 from scrapers.newfoundland_scraper import Newfoundland
+from account_manager.team import Team, User
+from account_manager.displayer import Information
 from scrapers.version_converter import call_python_version
 from federal_scraper.federal_scraper import my_function
 from storer.database import Database
 import json
 import jsonpickle
 
-y=Quebec()
+#y=Quebec()
 #y.load_bills()
-y.retrieve_bills()
+#y.retrieve_bills()
 #y.store_bills()
 """newbill=Database.findRecord("Perospero", "Lexamind", "Laws")
 print(jsonpickle.decode(newbill['item']).title)
@@ -29,7 +31,23 @@ print('littlenoni')
 print(str(details, 'utf-8'))"""
 #y.store_bills()
 #data=Ontario()
-x=Database()
+
+
+x=User("bou", "bou", "hello")
+x.addLaw("comte de noni")
+x.addLaw("francois robert")
+
+v=Information()
+v.addUser(x)
+
+all=Team()
+all.addUser(x)
+
+all.store_users()
+all.load_users()
+
+v.build_archives()
+
 #emails=[BillGates@gmail.com,SteveJobs@yahoo.com,BillJobs@aol.com,nick@gmail.com,vic@gmail.com,prince@yahoo.in]
 
 laws=["""RÈGLEMENT (CE) N o 593/2008 DU PARLEMENT EUROPÉEN ET DU CONSEIL du 17 juin 2008 sur la loi applicable aux obligations contractuelles\n
