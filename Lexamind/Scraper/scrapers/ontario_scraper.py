@@ -11,6 +11,8 @@ import requests
 from .scraper_api import Scraper, Bill
 import csv
 import re
+import locale
+from datetime import datetime
 
 class Ontario( Scraper ):
 
@@ -48,7 +50,6 @@ class Ontario( Scraper ):
             all_text = wordSection.find_all("span")
             for txt in all_text:
                 text += txt.text
-                print(type(txt.text))
                 #encoding = chardet.detect(txt.text)
                 #print(encoding['encoding'])
                 text = text.replace('\\xa0', ' ')
@@ -149,7 +150,7 @@ class Ontario( Scraper ):
 
             title = title_url.text.strip().replace(","," ")
 
-            bill_info = Bill(identifier, title)
+            bill_info = Bill(identifier, title, self.legislature)
 
             # If there is more than one row in the table, save all rows
             # Each attribute is saved in a list for that attribute
@@ -162,6 +163,8 @@ class Ontario( Scraper ):
                 bill_info.addEvent(stage, date, activity, committee)
 
                 current_row = current_row.findNextSibling('tr')
+
+            Ontario.sanitizeEventsDate(bill_info)
 
             # Getting the url of the detailed info
             info_url = url_base + title_url['href']
@@ -194,5 +197,17 @@ class Ontario( Scraper ):
                 modifiedLaws = modifiedstripped.split(Ontario.law_delimiter_str)
                 for modifiedLaw in modifiedLaws:
                     if modifiedLaw.find('Loi')!=-1 or modifiedLaw.find('Code')!=-1:
-                        print(modifiedLaw)
+                        #print(modifiedLaw)
                         bill.addLaw(modifiedLaw)
+
+    def sanitizeEventsDate(bill):
+        locale.setlocale(locale.LC_TIME, "fr-CA")
+        for event in bill.events:
+            print('noni'+event['date'])
+            try:
+                formatteddate=datetime.strptime(event['date'].strip(), '%d %b %Y').strftime('%d/%m/%Y')
+                event['date']=formatteddate
+                print('nonigood'+event['date'])
+            except:
+                pass
+        locale.setlocale(locale.LC_TIME, "en-CA")

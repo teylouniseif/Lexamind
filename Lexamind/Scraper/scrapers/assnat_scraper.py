@@ -81,7 +81,7 @@ class Quebec( Scraper ):
             number = int(bill.findNext('td').text.strip())
             link = bill.findNext('a')
             title = link.text.split(" (PDF")[0] # So we don't get the information about the PDF
-            bill_info = Bill(self.legislature+str(number), title)
+            bill_info = Bill(self.legislature+str(number), title, self.legislature)
             link = link.findNext('a')
             url = base + link['href']
             details, text = Quebec.get_text(url)

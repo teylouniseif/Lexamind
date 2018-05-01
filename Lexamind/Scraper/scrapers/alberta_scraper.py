@@ -12,6 +12,8 @@ from PyPDF2 import PdfFileReader
 from io import BytesIO
 testing = False
 import re
+import dateutil.parser as dparser
+from datetime import datetime
 
 from .scraper_api import Scraper, Bill
 
@@ -107,7 +109,7 @@ class Alberta( Scraper ):
                 if s.isdigit():
                     id=s
                     break
-            bill_info = Bill(self.legislature+id, info.text)
+            bill_info = Bill(self.legislature+id, info.text, self.legislature)
 
             detailed_url = base + str((info.find('a')['href']))
             details = Alberta.Find_Details(detailed_url)
@@ -123,26 +125,26 @@ class Alberta( Scraper ):
             # The data is always in the order:
             # First Reading, Second Reading, Committee of the Whole, Third Reading, Royal Assent
             row.append(readings.split('First Reading')[1].split('Second Reading')[0])
-            date=readings.split('First Reading')[1].split('Second Reading')[0]
+            date=readings.split('First Reading')[1].split('Second Reading')[0].split("(")[1].split("aft")[0]
             bill_info.addEvent("First Reading", date, None, None)
             if 'Second Reading' in readings:
                     row.append(readings.split('Second Reading')[1].split('Committee of the Whole')[0])
-                    date=readings.split('Second Reading')[1].split('Committee of the Whole')[0]
+                    date=readings.split('Second Reading')[1].split('Committee of the Whole')[0].split("(")[1].split("aft")[0]
                     bill_info.addEvent("Second Reading", date, None, None)
                     if 'Committee of the Whole' in readings:
                         row.append(readings.split('Committee of the Whole')[1].split('Third Reading')[0])
-                        date=readings.split('Committee of the Whole')[1].split('Third Reading')[0]
+                        date=readings.split('Committee of the Whole')[1].split('Third Reading')[0].split("(")[1].split("aft")[0]
                         bill_info.addEvent("Committee of the Whole", date, None, None)
                         if 'Third Reading' in readings:
                             row.append(readings.split('Third Reading')[1].split('Royal Assent')[0])
-                            date=readings.split('Third Reading')[1].split('Royal Assent')[0]
+                            date=readings.split('Third Reading')[1].split('Royal Assent')[0].split("(")[1].split("aft")[0]
                             bill_info.addEvent("Third Reading", date, None, None)
                             if 'Royal Assent' in readings:
                                 row.append(readings.split('Royal Assent')[1])
-                                date=readings.split('Royal Assent')[1]
+                                date=readings.split('Royal Assent')[1].split("(")[1].split("aft")[0]
                                 bill_info.addEvent("Royal Assent", date, None, None)
 
-            #bill_info.addEvent(stage, date, activity, committee)
+            Alberta.sanitizeEventsDate(bill_info)
 
             # Cleaning up the data
             for i in range(len(row)):
@@ -225,15 +227,6 @@ class Alberta( Scraper ):
         return data
 
     def scrapeLawsinBill(self, bill):
-        """modification = re.findall(Alberta.rgx_modified_title, bill.details)
-        if modification==None:
-            return
-        else:
-            for match in modification:
-                modifiedstripped=match.split('amended')[0]
-                if modifiedstripped!=None and modifiedstripped.find('Act')!=-1 and modifiedstripped.find('Act')!=0:
-                    print(modifiedstripped.split('Act')[0]+'Act')
-                    bill.addLaw(modifiedstripped.split('Act')[0]+'Act')"""
         modification = re.findall(Alberta.rgx_modified_title, bill.details)
         if modification==None:
             return
@@ -264,3 +257,18 @@ class Alberta( Scraper ):
                         modifiedstripped4=modifiedstripped3[len(modifiedstripped3)-1]
                         print(modifiedstripped4+'Act'+ bill.identifier)
                         bill.addLaw(modifiedstripped4+'Act')"""
+
+    def sanitizeEventsDate(bill):
+        for event in bill.events:
+            datedelimiter=re.compile(r"[0-9]{4}").split(event['date'])[1]
+            if datedelimiter.strip()!='':
+                datestripped= event['date'].split(datedelimiter)[0].strip()
+            else:
+                datestripped= event['date'].strip()
+            print(datedelimiter)
+            try:
+                formatteddate=datetime.strptime(datestripped, '%b. %d, %Y').strftime('%d/%m/%Y')
+                event['date']=formatteddate
+            except:
+                formatteddate=datetime.strptime(datestripped, '%b %d, %Y').strftime('%d/%m/%Y')
+                event['date']=formatteddate

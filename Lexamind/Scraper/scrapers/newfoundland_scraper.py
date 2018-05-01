@@ -7,6 +7,7 @@ import urllib.request as urllib2
 from bs4 import BeautifulSoup
 import requests
 import csv, re
+from datetime import datetime
 
 from .scraper_api import Scraper, Bill
 
@@ -108,7 +109,7 @@ class Newfoundland( Scraper ):
             if cols[0].text == "\xa0":
                 continue
 
-            bill_info = Bill(self.legislature+cols[0].text, cols[1].text)
+            bill_info = Bill(self.legislature+cols[0].text, cols[1].text, self.legislature)
 
             stageid= 0
             for c in cols[2:7]:
@@ -128,6 +129,8 @@ class Newfoundland( Scraper ):
                 # If there is no link to bill text, fill the details with ""
                 bill_data.append("")
                 bill_data.append("")
+
+            Newfoundland.sanitizeEventsDate(bill_info)
 
             data.append(bill_info)
 
@@ -238,3 +241,16 @@ class Newfoundland( Scraper ):
                         print(modifiedstripped4+'Act'+ bill.identifier)
                         bill.addLaw(modifiedstripped4+'Act')
                 previousmatch=match
+
+    def sanitizeEventsDate(bill):
+        for event in bill.events:
+            datestripped= event['date'].strip()
+            if datestripped=="No" or datestripped=="" or datestripped=="Yes":
+                continue
+            try:
+                formatteddate=datetime.strptime(datestripped, '%b. %d/%Y').strftime('%d/%m/%Y')
+                event['date']=formatteddate
+            except:
+                formatteddate=datetime.strptime(datestripped, '%b %d/%Y').strftime('%d/%m/%Y')
+                event['date']=formatteddate
+            print(formatteddate)

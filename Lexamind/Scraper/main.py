@@ -17,8 +17,12 @@ from storer.database import Database
 import json
 import jsonpickle
 
-#y=Quebec()
-#y.load_bills()
+y=Newfoundland()
+y.retrieve_bills()
+
+for bill in y.bills:
+    print(bill.events[0]['date']+"\n")
+
 #y.retrieve_bills()
 #y.store_bills()
 """newbill=Database.findRecord("Perospero", "Lexamind", "Laws")
@@ -33,7 +37,7 @@ print(str(details, 'utf-8'))"""
 #data=Ontario()
 
 
-x=User("bou", "bou", "hello")
+"""x=User("bou", "bou", "hello")
 x.addLaw("comte de noni")
 x.addLaw("francois robert")
 
@@ -46,7 +50,7 @@ all.addUser(x)
 all.store_users()
 all.load_users()
 
-v.build_archives()
+v.build_archives()"""
 
 #emails=[BillGates@gmail.com,SteveJobs@yahoo.com,BillJobs@aol.com,nick@gmail.com,vic@gmail.com,prince@yahoo.in]
 

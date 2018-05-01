@@ -8,6 +8,7 @@ from storer.storer import storeBill, retrieveBillsByLegislature, storeLaw, delet
 from collections import namedtuple
 import jsonpickle, re
 
+
 class Bill( object):
 
     """title = ''
@@ -16,9 +17,10 @@ class Bill( object):
     details=''
     lawnames=["Perospero", "Katakuri", "Oven", "Smoothie", "Daifuku", "Compote", "Cracker", "Snack"]"""
 
-    def __init__(self, identifier, title):
+    def __init__(self, identifier, title, legislature):
         self.title=title
         self.identifier=identifier
+        self.legislature=''
         self.lawnames=[]
         self.events=[]
         self.details=''
