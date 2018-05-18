@@ -5,6 +5,7 @@ Created on Tue Jan  30 21:57:00 2018
 @author: Saif Kurdi-Teylouni
 """
 from .database import Database
+import numpy
 
 def storeBill(bill):
     bill.details=bill.details.encode('utf-8')
@@ -55,6 +56,7 @@ def retrieveUsersByTeam(team):
     return users
 
 def storeLaw(law):
+    print(law.identifier)
     record=Database.createDocumentfromField(law, law.identifier)
     Database.addRecord(record, "Lexamind", "Laws")
     #Database.createSearchIndexfromRecord(law.identifier, "Lexamind", "Laws")
@@ -73,7 +75,7 @@ def updateLaw(law):
     record=Database.createDocumentfromField(law, law.identifier)
     Database.updateRecord(record, "Lexamind", "Laws")
 
-def storeArchive(archive):
+"""def storeArchive(archive):
     record=Database.createDocumentfromField(archive, archive.identifier)
     Database.addRecord(record, "Lexamind", "Archives")
 
@@ -83,10 +85,52 @@ def deleteArchive(archive):
 
 def retrieveArchive(id):
     encodedarchive=Database.findRecord(id, "Lexamind", "Archives")
-    if encodedlaw==None:
+    if encodedarchive==None:
         return None
     return Database.returnObjfromDocument(encodedarchive)
 
 def updateArchive(archive):
     record=Database.createDocumentfromField(archive, archive.identifier)
+    Database.updateRecord(record, "Lexamind", "Archives")"""
+
+def storeArchive(archive):
+    record["_id"]=archive.identifier
+    record["lastUpdate"]=archive.lastUpdate
+    record["messages"]=archive.messages
+    Database.addRecord(record, "Lexamind", "Archives")
+
+def deleteArchive(archive):
+    record["_id"]=archive.identifier
+    Database.deleteRecord(record, "Lexamind", "Archives")
+
+def retrieveArchive(id):
+    archive=Database.findRecord(id, "Lexamind", "Archives")
+    if archive==None:
+        return None
+    archive=Update(archive["_id"], archive["_id"], archive["lastUpdate"])
+    return archive
+
+def updateArchive(archive):
+    record["_id"]=archive.identifier
+    record["lastUpdate"]=archive.lastUpdate
+    record["messages"]=archive.messages
     Database.updateRecord(record, "Lexamind", "Archives")
+
+def storeAccount(user):
+    record["_id"]=user.identifier
+    record["laws"]=numpy.asarray(user.lawnames)
+    record["password"]=user.password
+    Database.addRecord(record, "Lexamind", "Accounts")
+
+def deleteAccount(user):
+    record["_id"]=user.identifier
+    Database.deleteRecord(record, "Lexamind", "Accounts")
+
+def retrieveAccount(id):
+    pass
+
+def updateAccount(user):
+    record["_id"]=user.identifier
+    record["laws"]=numpy.asarray(user.lawnames)
+    record["password"]=user.password
+    Database.updateRecord(record, "Lexamind", "Accounts")

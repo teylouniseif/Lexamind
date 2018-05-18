@@ -131,10 +131,7 @@ class Ontario( Scraper ):
         soup = BeautifulSoup(page, "html.parser")
         bills = soup.find_all("div", attrs = {"class": "billstatus"})
 
-        counter = 1
         for bill in bills:
-            #if counter > 3:
-                #continue
 
             if counter % 10 == 0:
                 print("Currently at bill " + str(counter))
@@ -164,7 +161,7 @@ class Ontario( Scraper ):
 
                 current_row = current_row.findNextSibling('tr')
 
-            Ontario.sanitizeEventsDate(bill_info)
+            #Ontario.sanitizeEventsDate(bill_info)
 
             # Getting the url of the detailed info
             info_url = url_base + title_url['href']
@@ -172,7 +169,7 @@ class Ontario( Scraper ):
 
             self.scrapeLawsinBill(bill_info)
 
-            #print(bill_info.details)
+            print(bill_info.details)
 
             data.append(bill_info)
 
@@ -197,7 +194,7 @@ class Ontario( Scraper ):
                 modifiedLaws = modifiedstripped.split(Ontario.law_delimiter_str)
                 for modifiedLaw in modifiedLaws:
                     if modifiedLaw.find('Loi')!=-1 or modifiedLaw.find('Code')!=-1:
-                        #print(modifiedLaw)
+                        print(modifiedLaw)
                         bill.addLaw(modifiedLaw)
 
     def sanitizeEventsDate(bill):

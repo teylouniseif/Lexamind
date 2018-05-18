@@ -46,6 +46,8 @@ class Team( object ):
     def store_users(self):
         for user in self.users:
             storeUser(user)
+            #need to update account table
+            storeAccount(user)
             #need to update law table also
             for lawname in user.lawnames:
                 law=Law(lawname, lawname)

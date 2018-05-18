@@ -1,10 +1,20 @@
+#! python2
 # -*- coding: utf-8 -*-
+
+from scrapy.crawler import CrawlerProcess
+#from federal_scraper.parl_spider.spiders.parl import ParlSpider
+
+from twisted.internet import reactor
+from scrapy.crawler import Crawler
+from scrapy import signals
+from scrapy.utils.project import get_project_settings
 from scrapy import Spider
 from scrapy.http import Request
+from scrapy.xlib.pydispatch import dispatcher
+from .scraper_api import Scraper, Bill
 
-
-class ParlSpider(Spider):
-    name = 'parl_f'
+class Canada(Scraper, Spider):
+    name = 'parl_ca'
     allowed_domains = ['parl.ca']
     start_urls = (
         'https://www.parl.ca/LegisInfo/Home.aspx?ParliamentSession=42-1&Page=1',
@@ -12,11 +22,20 @@ class ParlSpider(Spider):
 
     # start_urls = ['http://www.parl.ca/LegisInfo/BillDetails.aspx?Language=F&billId=8804045']
 
+    def __init__(self):
+        super(Canada, self).__init__()
+        dispatcher.connect(self.spider_closed, signals.spider_closed)
+        self.legislature="Canada"
+
     def parse(self, response):
         bills = response.xpath('//*[@class="BillTitle"]/@href').extract()
         for bill in bills:
-            yield Request(bill.replace('Language=E', 'Language=F'),
+            items={}
+            bill1=Bill(None, None, None)#self.legislature)
+            result=Request(bill.replace('Language=E', 'Language=F'),
+                          meta={'items': items},
                           callback=self.parse_bill)
+            yield result
 
         next_page_urls = response.xpath('//*[@class="resultPagingSection"]//@href').extract()
         for url in next_page_urls:
@@ -78,10 +97,16 @@ class ParlSpider(Spider):
         if latest_publication:
             latest_publication = latest_publication.replace('//', '')
             latest_publication = 'https://www.' + latest_publication
-            yield Request(latest_publication,
+            result=Request(latest_publication,
                           meta={'items': items},
                           callback=self.parse_latest_publication)
+            yield result
         else:
+            bill=Bill(items['bill_number_and_title'], items['bill_name'], self.legislature)
+            for k in response.meta['items'].keys():
+                if k!='bill_number_and_title' and k!='bill_name' and k!='date':
+                    bill.addEvent(k, response.meta['items'][k], None, None)
+            self.add_bill(bill)
             yield items
 
     def parse_latest_publication(self, response):
@@ -99,6 +124,46 @@ class ParlSpider(Spider):
         row_dict['Latest Publication'] = ', '.join(row_list)
         row_dict['Table of contents'] = tuple(table_of_contents)
 
+        #add bill
+        result = dict(response.meta['items'].items() | row_dict.items())
+        bill=Bill(result['bill_number_and_title'], result['bill_name'], self.legislature)
+        bill.setDetails(result['Latest Publication'])
+        self.scrapeLawsinBill(bill)
+        for k in response.meta['items'].keys():
+            if k!='bill_number_and_title' and k!='bill_name' and k!='date':
+                bill.addEvent(k, response.meta['items'][k], None, None)
+        self.add_bill(bill)
 
-        all_items = dict(response.meta['items'].items() | row_dict.items())
-        yield all_items
+        yield result
+
+    def retrieve_bills(self):
+
+        settings = get_project_settings()
+        #parl_spider=__import__('federal_scraper.parl_spider')
+        #settings.setmodule(parl_spider)
+        process = CrawlerProcess({
+        'LOG_STDOUT' : False,
+        'LOG_FILE' : 'scrapy_output.txt',
+        'ITEM_PIPELINES': {
+                'scrapers.federal_scraper.CanPipeline': 1}
+        })
+        process.crawl(Canada)
+        print("hellononi")
+        process.start()
+        return
+
+    def spider_closed(self, spider):
+        self.bills=spider.bills
+        #print(self.bills)
+        return
+
+    def scrapeLawsinBill(self, bill):
+        bill.addLaw("noni")
+        return
+
+
+class CanPipeline(object):
+    def close_spider(self, spider):
+        #for bill in spider.bills:
+        #    print(bill.identifier)
+        return

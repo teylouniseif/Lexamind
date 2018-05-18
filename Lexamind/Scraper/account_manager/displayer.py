@@ -14,13 +14,16 @@ class Update(object):
 
     """username = ''
     identifier = ''
-    htmlupdates= ''
+    lastUpdate= ''
     """
 
-    def __init__(self, username, identifier, htmlupdates):
+    def __init__(self, username, identifier, lastUpdate):
         self.username=username
         self.identifier=identifier
-        self.htmlupdates=htmlupdates
+        self.lastUpdate=lastUpdate
+
+    def get_Content(self):
+        return self.lastUpdate
 
 class Information( object ):
 
@@ -53,10 +56,10 @@ class Information( object ):
         #build html src code
         billno=bill.title.strip(bill.legislature)
         html="                <tr class=\"data-row new\" style=\"padding: 0;vertical-align: top;text-align: left;\">\r\n"\
-    		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+match.changeType+"</td>\r\n"\
+    		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+bill.events[-1:]['stage']+"</td>\r\n"\
     		"                  <td style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+cachedLaw+"</td>\r\n"\
     		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+billno+"</td>\r\n"\
-    		"                  <td style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+formatter.format(match.changeTime)+"</td>\r\n"\
+    		"                  <td style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+bill.events[-1:]['date']+"</td>\r\n"\
     		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+bill.legislature+"</td>\r\n"\
     		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+"nourlfornow"+"</td>\r\n"\
     		"                </tr>\r\n"

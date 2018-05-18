@@ -19,7 +19,7 @@ from .scraper_api import Scraper, Bill
 
 class Alberta( Scraper ):
 
-    rgx_modified_title = r"[^\r\n]*"#'.*amended.*'#'.*is\s*amended\s*by\s*this.*'
+    rgx_modified_title = r"[^\r\n]*"
 
     def __init__(self):
         super(Scraper, self).__init__()
@@ -64,7 +64,7 @@ class Alberta( Scraper ):
 
         rows = soup.find('div', attrs = {"id":"mainbox"}).findAll('tr')
 
-        urls = []
+        urls = {}
         for row in rows:
             title = row.find('td').text
             # We're only going up to 2016, so the last is the 2015-2016 Legislature
@@ -75,17 +75,18 @@ class Alberta( Scraper ):
             # Some Legislatures don't have any bills
             # Make sure we have 3 colums (meaning that the third one has the url)
             if len(cols) >2:
-                urls.append(cols[2].find('a')['href'])
+                #urls.append(cols[2].find('a')['href'])
+                urls[title]=cols[2].find('a')['href']
 
-        for url in urls:
-            data += self.Legislature(base + url)
+        for leg, url in urls.items():
+            data += self.Legislature(base + url, leg)
 
         self.bills=data
 
         #Convert_To_Csv(data)
         return data
 
-    def Legislature(self, url):
+    def Legislature(self, url, leg):
         data = []
 
         base = "https://www.assembly.ab.ca/net/"
@@ -106,10 +107,16 @@ class Alberta( Scraper ):
 
             id=info.text
             for s in info.text.split():
-                if s.isdigit():
+                if any(char.isdigit() for char in s):
                     id=s
                     break
-            bill_info = Bill(self.legislature+id, info.text, self.legislature)
+            bill_info = Bill(self.legislature+id+leg, info.text, self.legislature)
+
+            """billtitle=self.legislature+id+leg
+            if billtitle!="AlbertaPr729th Legislature, 1st Session (2015-2016)":
+                info=info.findNextSibling('tr')
+                info=info.findNextSibling('tr')
+                continue"""
 
             detailed_url = base + str((info.find('a')['href']))
             details = Alberta.Find_Details(detailed_url)
@@ -144,7 +151,7 @@ class Alberta( Scraper ):
                                 date=readings.split('Royal Assent')[1].split("(")[1].split("aft")[0]
                                 bill_info.addEvent("Royal Assent", date, None, None)
 
-            Alberta.sanitizeEventsDate(bill_info)
+            #Alberta.sanitizeEventsDate(bill_info)
 
             # Cleaning up the data
             for i in range(len(row)):
@@ -228,16 +235,22 @@ class Alberta( Scraper ):
 
     def scrapeLawsinBill(self, bill):
         modification = re.findall(Alberta.rgx_modified_title, bill.details)
+        #print(bill.details)
         if modification==None:
             return
         else:
             previousmatch=None
             for match in modification:
+                #print(match)
                 modifiedstripped=re.search('.*amended.*', match)
-                #modifiedstripped=match.search('amended')
                 if modifiedstripped==None:
                     continue
                 else:
+                    """modifiedstripped=modifiedstripped.split('The')
+                    modifiedstripped=modifiedstripped[len(modifiedstripped)-1]
+                    print(modifiedstripped)
+                    if modifiedstripped.find('the Act')==-1 and modifiedstripped.find('this Act')==-1:
+                        bill.addLaw("the"+modifiedstripped+'Act')"""
                     modifiedstripped=match.split('amended')[0]
                     if modifiedstripped.find('Act')==-1 and previousmatch!=None:
                         modifiedstripped=previousmatch

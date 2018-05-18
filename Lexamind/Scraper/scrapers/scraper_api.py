@@ -37,7 +37,7 @@ class Bill( object):
         self.details=details
 
     def addLaw(self, law):
-        sanitizedlaw=str(law.strip().lower())
+        sanitizedlaw=str(law.strip().lower()).encode('utf-8')
         self.lawnames.append(sanitizedlaw)
 
 class Law( object):
@@ -69,6 +69,9 @@ class Scraper( object ):
 
     def retrieve_bills( self , filename):
         pass
+
+    def add_bill(self, bill):
+        self.bills.append(bill)
 
     def format_bills(self, collection):
         pass

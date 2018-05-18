@@ -8,20 +8,32 @@ Created on Tue Jan  30 21:57:00 2018
 from scrapers.ontario_scraper import Ontario
 from scrapers.alberta_scraper import Alberta
 from scrapers.assnat_scraper import Quebec
+from scrapers.federal_scraper import Canada
 from scrapers.newfoundland_scraper import Newfoundland
 from account_manager.team import Team, User
 from account_manager.displayer import Information
+from account_manager.emailer import Email
 from scrapers.version_converter import call_python_version
-from federal_scraper.federal_scraper import my_function
+#from federal_scraper.federal_scraper import my_function
+#from scrapers.federal_scraper import my_function
 from storer.database import Database
+from storer.storer import retrieveLaw
 import json
 import jsonpickle
 
-y=Newfoundland()
+#Email.send_Email("teylouniseif@gmail.com")
+
+y=Canada()
 y.retrieve_bills()
 
+print("noni")
+
 for bill in y.bills:
-    print(bill.events[0]['date']+"\n")
+    if len(bill.events)!=0:
+        print(bill.events[0]['date']+"\n")
+    print(bill.title)
+    print(bill.details)
+    print(bill.lawnames)
 
 #y.retrieve_bills()
 #y.store_bills()
@@ -35,7 +47,8 @@ print('littlenoni')
 print(str(details, 'utf-8'))"""
 #y.store_bills()
 #data=Ontario()
-
+#law=retrieveLaw("code de la sécurité routière".encode("utf-8"))
+#print(law.title)
 
 """x=User("bou", "bou", "hello")
 x.addLaw("comte de noni")

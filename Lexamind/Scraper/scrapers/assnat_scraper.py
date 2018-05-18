@@ -20,7 +20,7 @@ from .scraper_api import Scraper, Bill
 class Quebec( Scraper ):
 
     RELEVANCYSTRING=r"(^loi(s)?|^règlement(s)?)\s+(modifié(e)(s)?|remplacé(e)(s)?|abrogé(e)(s)?).*"
-    MOFIFIEDLAWSTRINGSTART=r"(^loi|^code|^règlement|^charte).*"
+    MOFIFIEDLAWSTRINGSTART=r"œ.*"#"(loi|code|règlement|charte).*"
     MOFIFIEDLAWSTRINGEND=r".*;\s*$|.*\.\s*$"
 
     def __init__(self):
@@ -77,7 +77,13 @@ class Quebec( Scraper ):
         table = soup.find('table', attrs = {"id":'tblListeProjetLoi'})
         bills = table.find('tbody').findAll('tr')
 
+        counter=0
         for bill in bills:
+
+            if counter > 50:
+                continue
+            else:
+                counter=counter+1
             number = int(bill.findNext('td').text.strip())
             link = bill.findNext('a')
             title = link.text.split(" (PDF")[0] # So we don't get the information about the PDF
@@ -268,7 +274,10 @@ class Quebec( Scraper ):
         pdfFile = PdfFileReader(fp)
         for pageNum in range(pdfFile.getNumPages()):
             currentPage = pdfFile.getPage(pageNum)
-            data += currentPage.extractText()
+            try:
+                data += currentPage.extractText()
+            except:
+                continue
         fp.close()
 
         os.system("del " + temp_pdf)
@@ -362,52 +371,60 @@ class Quebec( Scraper ):
         text=bill.details.lower()
         text2=str(text.encode('utf-8'))
         lawstrings = re.compile(r"[\r\n]+").split(text)
-        print(lawstrings)
-        print (len(lawstrings))
-        while index < len(lawstrings):
+        #while index < len(lawstrings):
+        it=iter(lawstrings)
+        try:
+            while next(it):
 
-            index+=1
-            strg=lawstrings[index]
+                #use iter to stop loop
 
-            if strg.isdigit() or strg.strip()=='':
-                continue
-
-            if re.compile(Quebec.RELEVANCYSTRING).search(strg)==None:
-                continue
-			#this bill at this point affect laws or regulations that are (repeal, amendment or replacement)
-            else:
-                print('noni')
-                law=""
                 index+=1
-                strg=lawstrings[index]
+                #strg=lawstrings[index]
+                strg=next(it)
+
                 #print(strg)
-                while re.compile(Quebec.MOFIFIEDLAWSTRINGSTART).search(strg)!=None:
-                    #at this point check that law affected is one that we are interested in
-                    law+=strg
-                    print(law+" start")
-					#System.out.println(str);
-					#here certain laws modified can span more than one line
-					#use semi-colon or dot at end of line as delimiter of law changed
-                    while re.compile(Quebec.MOFIFIEDLAWSTRINGEND).search(strg)==None:
-                        index+=1
-                        strg=lawstrings[index]
-                        law+=strg
-                        print(law+" end")
 
-                    index+=1
-                    strg=lawstrings[index]
+                if strg.isdigit() or strg.strip()=='':
+                    continue
 
-                    bill.addLaw(law)#.split(".*œ\s|\s\(|;")[1])
-
-                    while strg.isdigit() or strg.strip()=='':
-                        index+=1
-                        strg=lawstrings[index]
-
-                    if re.compile(Quebec.RELEVANCYSTRING).search(strg)!=None:
-                        index+=1
-                        strg=lawstrings[index]
-
-                    print("noni2")
-                    print(strg)
-
+                if re.compile(Quebec.RELEVANCYSTRING).search(strg)==None:
+                    continue
+    			#this bill at this point affect laws or regulations that are (repeal, amendment or replacement)
+                else:
                     law=""
+                    index+=1
+                    #strg=lawstrings[index]
+                    strg=next(it)
+                    #print(strg)
+                    while re.compile(Quebec.MOFIFIEDLAWSTRINGSTART).search(strg)!=None:
+                        #at this point check that law affected is one that we are interested in
+                        law+=strg
+    					#System.out.println(str);
+    					#here certain laws modified can span more than one line
+    					#use semi-colon or dot at end of line as delimiter of law changed
+                        while re.compile(Quebec.MOFIFIEDLAWSTRINGEND).search(strg)==None:
+                            index+=1
+                            #strg=lawstrings[index]
+                            strg=next(it)
+                            law+=strg
+
+                        index+=1
+                        #strg=lawstrings[index]
+                        strg=next(it)
+
+                        bill.addLaw(re.compile(r".*œ\s|\s\(|;|\.").split(law)[1])
+
+                        while strg.isdigit() or strg.strip()=='':
+                            index+=1
+                            #print(strg)
+                            #strg=lawstrings[index]
+                            strg=next(it)
+
+                        if re.compile(Quebec.RELEVANCYSTRING).search(strg)!=None:
+                            index+=1
+                            #strg=lawstrings[index]
+                            strg=next(it)
+
+                        law=""
+        except StopIteration:
+            print("this is the end")
