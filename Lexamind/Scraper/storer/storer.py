@@ -94,12 +94,14 @@ def updateArchive(archive):
     Database.updateRecord(record, "Lexamind", "Archives")"""
 
 def storeArchive(archive):
+    record={}
     record["_id"]=archive.identifier
     record["lastUpdate"]=archive.lastUpdate
-    record["messages"]=archive.messages
+    #record["messages"]=archive.messages
     Database.addRecord(record, "Lexamind", "Archives")
 
 def deleteArchive(archive):
+    record={}
     record["_id"]=archive.identifier
     Database.deleteRecord(record, "Lexamind", "Archives")
 
@@ -107,22 +109,24 @@ def retrieveArchive(id):
     archive=Database.findRecord(id, "Lexamind", "Archives")
     if archive==None:
         return None
-    archive=Update(archive["_id"], archive["_id"], archive["lastUpdate"])
-    return archive
+    return archive["_id"], archive["lastUpdate"]
 
 def updateArchive(archive):
+    record={}
     record["_id"]=archive.identifier
     record["lastUpdate"]=archive.lastUpdate
-    record["messages"]=archive.messages
+    #record["messages"]=archive.messages
     Database.updateRecord(record, "Lexamind", "Archives")
 
 def storeAccount(user):
+    record={}
     record["_id"]=user.identifier
-    record["laws"]=numpy.asarray(user.lawnames)
+    record["laws"]=",".join(user.lawnames)
     record["password"]=user.password
     Database.addRecord(record, "Lexamind", "Accounts")
 
 def deleteAccount(user):
+    record={}
     record["_id"]=user.identifier
     Database.deleteRecord(record, "Lexamind", "Accounts")
 
@@ -130,7 +134,8 @@ def retrieveAccount(id):
     pass
 
 def updateAccount(user):
+    record={}
     record["_id"]=user.identifier
-    record["laws"]=numpy.asarray(user.lawnames)
+    record["laws"]=",".join(user.lawnames)
     record["password"]=user.password
     Database.updateRecord(record, "Lexamind", "Accounts")

@@ -8,10 +8,9 @@ from twisted.internet import reactor
 from scrapy.crawler import Crawler
 from scrapy import signals
 from scrapy.utils.project import get_project_settings
-
 from scrapy import Spider
 from scrapy.http import Request
-
+from .scraper_api import Scraper, Bill
 
 class ParlSpider(Spider):
     name = 'parl_ca'

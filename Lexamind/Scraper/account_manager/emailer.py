@@ -8,6 +8,8 @@ from storer.storer import retrieveArchive
 from .displayer import Update
 import jsonpickle, re
 import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 class Email(object):
 
@@ -22,8 +24,14 @@ class Email(object):
         server.starttls()
         server.login(Email.user, Email.password)
 
-        update=retrieveArchive(recipient)
+        updateidentifier, updatehtml=retrieveArchive(recipient)
+        update=Update(updateidentifier, updateidentifier, updatehtml)
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = "Lexamind Update"
+        msg['From'] = Email.user
+        msg['To'] = recipient
         if update!= None:
-            server.sendmail(Email.user, recipient, update.get_Content())
+            msg.attach(MIMEText(update.get_Content(), 'html'))
+            server.sendmail(Email.user, recipient, msg.as_string())
 
         server.quit()

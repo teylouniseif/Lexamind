@@ -12,6 +12,7 @@ from scrapy import Spider
 from scrapy.http import Request
 from scrapy.xlib.pydispatch import dispatcher
 from .scraper_api import Scraper, Bill
+import re
 
 class Canada(Scraper, Spider):
     name = 'parl_ca'
@@ -19,6 +20,9 @@ class Canada(Scraper, Spider):
     start_urls = (
         'https://www.parl.ca/LegisInfo/Home.aspx?ParliamentSession=42-1&Page=1',
     )
+
+    rgx_modified_title_list = [".*Loi.*",".*Code.*"]
+    law_delimiter_str="est|sont|;|dans|dont"
 
     # start_urls = ['http://www.parl.ca/LegisInfo/BillDetails.aspx?Language=F&billId=8804045']
 
@@ -102,7 +106,7 @@ class Canada(Scraper, Spider):
                           callback=self.parse_latest_publication)
             yield result
         else:
-            bill=Bill(items['bill_number_and_title'], items['bill_name'], self.legislature)
+            bill=Bill(self.legislature+items['bill_number_and_title'], self.legislature+items['bill_number_and_title'], self.legislature)
             for k in response.meta['items'].keys():
                 if k!='bill_number_and_title' and k!='bill_name' and k!='date':
                     bill.addEvent(k, response.meta['items'][k], None, None)
@@ -126,7 +130,7 @@ class Canada(Scraper, Spider):
 
         #add bill
         result = dict(response.meta['items'].items() | row_dict.items())
-        bill=Bill(result['bill_number_and_title'], result['bill_name'], self.legislature)
+        bill=Bill(self.legislature+result['bill_number_and_title'], self.legislature+result['bill_number_and_title'], self.legislature)
         bill.setDetails(result['Latest Publication'])
         self.scrapeLawsinBill(bill)
         for k in response.meta['items'].keys():
@@ -158,9 +162,20 @@ class Canada(Scraper, Spider):
         return
 
     def scrapeLawsinBill(self, bill):
-        bill.addLaw("noni")
-        return
-
+        for i in range(len(bill.details.split("Loi"))-1):
+            if i==0:
+                continue
+            modifiedstripped=bill.details.split("Loi")[i]
+            modifiedLaw = re.split(Canada.law_delimiter_str, modifiedstripped)[0]
+            #print("Loi"+modifiedLaw)
+            bill.addLaw("Loi"+re.compile(r"\(|,|;|\.").split(modifiedLaw)[0])
+        for i in range(len(bill.details.split("Code"))-1):
+            if i==0:
+                continue
+            modifiedstripped=bill.details.split("Code")[i]
+            modifiedLaw = re.split(Canada.law_delimiter_str, modifiedstripped)[0]
+            #print("Code"+modifiedLaw)
+            bill.addLaw("Code"+re.compile(r"\(|,|;|\.").split(modifiedLaw)[0])
 
 class CanPipeline(object):
     def close_spider(self, spider):

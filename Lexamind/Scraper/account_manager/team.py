@@ -4,7 +4,7 @@
 Created on Tue Jan  30 21:57:00 2018
 @author: Saif Kurdi-Teylouni
 """
-from storer.storer import storeUser, retrieveUser, retrieveUsersByTeam, storeLaw, deleteLaw, retrieveLaw, updateLaw
+from storer.storer import storeUser, retrieveUser, retrieveUsersByTeam, storeLaw, deleteLaw, retrieveLaw, updateLaw, storeAccount
 from scrapers.scraper_api import Law
 from collections import namedtuple
 import jsonpickle, re

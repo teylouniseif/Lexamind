@@ -20,7 +20,7 @@ class Bill( object):
     def __init__(self, identifier, title, legislature):
         self.title=title
         self.identifier=identifier
-        self.legislature=''
+        self.legislature=legislature
         self.lawnames=[]
         self.events=[]
         self.details=''
@@ -37,7 +37,7 @@ class Bill( object):
         self.details=details
 
     def addLaw(self, law):
-        sanitizedlaw=str(law.strip().lower()).encode('utf-8')
+        sanitizedlaw=str(law.strip().lower())#.encode('utf-8')
         self.lawnames.append(sanitizedlaw)
 
 class Law( object):
@@ -49,10 +49,10 @@ class Law( object):
     def __init__(self, identifier, title):
         self.title=title
         self.identifier=identifier
-        self.bills={}
+        self.bills=[]
 
     def addDependentBill(self, bill):
-        self.bills[bill.identifier]=bill.title
+        self.bills.append(bill.identifier)
 
     def getDependantBills(self):
         return self.bills

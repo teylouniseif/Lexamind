@@ -23,17 +23,29 @@ import jsonpickle
 
 #Email.send_Email("teylouniseif@gmail.com")
 
-y=Canada()
+"""y=Quebec()
 y.retrieve_bills()
+y.store_bills()
 
-print("noni")
+y=Ontario()
+y.retrieve_bills()
+y.store_bills()
+y=Quebec()
+y.retrieve_bills()
+y.store_bills()
+y=Alberta()
+y.retrieve_bills()
+y.store_bills()
 
-for bill in y.bills:
-    if len(bill.events)!=0:
-        print(bill.events[0]['date']+"\n")
-    print(bill.title)
-    print(bill.details)
-    print(bill.lawnames)
+print("noni")"""
+
+#for bill in y.bills:
+    #if len(bill.events)!=0:
+    #    print(bill.events[0]['date']+"\n")
+    #print(bill.title)
+    #print(bill.details)
+    #if len(bill.lawnames)!=0:
+    #    print(bill.lawnames[0]+"noni")
 
 #y.retrieve_bills()
 #y.store_bills()
@@ -50,9 +62,9 @@ print(str(details, 'utf-8'))"""
 #law=retrieveLaw("code de la sécurité routière".encode("utf-8"))
 #print(law.title)
 
-"""x=User("bou", "bou", "hello")
-x.addLaw("comte de noni")
-x.addLaw("francois robert")
+x=User("teylouniseif@gmail.com", "teylouniseif@gmail.com", "diazbrother")
+x.addLaw("police act")
+x.addLaw("charte de la ville de montréal")
 
 v=Information()
 v.addUser(x)
@@ -63,7 +75,11 @@ all.addUser(x)
 all.store_users()
 all.load_users()
 
-v.build_archives()"""
+
+
+v.build_archives()
+
+Email.send_Email("teylouniseif@gmail.com")
 
 #emails=[BillGates@gmail.com,SteveJobs@yahoo.com,BillJobs@aol.com,nick@gmail.com,vic@gmail.com,prince@yahoo.in]
 
@@ -156,10 +172,3 @@ Loi sur le lobbying (CAN)\n"""]
     newbill=Database.findRecord(record['_id'], "Lexamind", "Users")
     print(jsonpickle.decode(newbill['item']).title)
     print(jsonpickle.decode(newbill['item']).details)"""
-
-#result = call_python_version("2.7", "scrapers.federal_scraper", "my_function",
-#                             ["Mr", "Bear"])
-
-#result = call_python_version("2.7", "federal_scraper.federal_scraper", "my_function",[])
-
-#my_function()

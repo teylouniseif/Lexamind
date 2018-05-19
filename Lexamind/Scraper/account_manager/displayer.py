@@ -4,7 +4,7 @@
 Created on Tue Jan  30 21:57:00 2018
 @author: Saif Kurdi-Teylouni
 """
-from storer.storer import storeUser, retrieveUser, retrieveUsersByTeam, storeLaw, deleteLaw, retrieveLaw, updateLaw, storeArchive
+from storer.storer import storeUser, retrieveUser, retrieveUsersByTeam, storeLaw, deleteLaw, retrieveLaw, updateLaw, storeArchive, retrieveBill
 from collections import namedtuple
 from .team import User
 from .html_template import Template
@@ -46,7 +46,9 @@ class Information( object ):
             cachedLaw=retrieveLaw(lawname)
             if cachedLaw!=None:
                 bills=cachedLaw.getDependantBills()
-                for bill in bills:
+                for billid in bills:
+                    bill=retrieveBill(billid)
+                    print(bill.identifier)
                     updatetext+=self.build_update(user, bill, cachedLaw)
         html=self.inject_update_in_template(updatetext)
         update=Update(user.username, user.username, html)
@@ -55,11 +57,17 @@ class Information( object ):
     def build_update(self, user, bill, cachedLaw):
         #build html src code
         billno=bill.title.strip(bill.legislature)
+        if len(bill.events)!=0:
+            stage=bill.events[-1]["stage"]
+            date=bill.events[-1]["date"]
+        else:
+            stage="N/A"
+            date="N/A"
         html="                <tr class=\"data-row new\" style=\"padding: 0;vertical-align: top;text-align: left;\">\r\n"\
-    		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+bill.events[-1:]['stage']+"</td>\r\n"\
-    		"                  <td style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+cachedLaw+"</td>\r\n"\
+    		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+stage+"</td>\r\n"\
+    		"                  <td style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+cachedLaw.title+"</td>\r\n"\
     		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+billno+"</td>\r\n"\
-    		"                  <td style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+bill.events[-1:]['date']+"</td>\r\n"\
+    		"                  <td style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+date+"</td>\r\n"\
     		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+bill.legislature+"</td>\r\n"\
     		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+"nourlfornow"+"</td>\r\n"\
     		"                </tr>\r\n"

@@ -11,106 +11,23 @@ import requests
 from .scraper_api import Scraper, Bill
 import csv
 import re
-import locale
+import locale, time
 from datetime import datetime
 
+
+# the main function that scrapes the Legislative Assembly of Ontario
+# it will be saved as Legislative_Assembly_of_Ontario.csv
 class Ontario( Scraper ):
 
     rgx_modified_title = '.*Loi modifiant.*'
-    law_delimiter_str="et"
+    law_delimiter_str="et|en ce|afin|à|pour|concernant"
 
     def __init__(self):
         super(Scraper, self).__init__()
         self.legislature="Ontario"
 
-    # Gets all the text from the detailed info page
-    def Extract_Info_Ontario(url):
-        try:
-            response = requests.get(url)
-        except:
-            print("There was an issue connecting to the internet")
-            return
-
-        if response.status_code != 200:
-            print("There was an error finding the detailed page")
-            return
-
-        page = urllib2.urlopen(url)
-        soup = BeautifulSoup(page, "html.parser")
-        text = ""
-        wordSection = ""
-        i = 1
-        # check all the word sections starting at 1
-        while wordSection != None:
-            section = "WordSection" + str(i)
-            wordSection = soup.find("div", attrs = {'class' : section})
-            if wordSection == None:
-                break
-            # Finds all the text in the word section
-            all_text = wordSection.find_all("span")
-            for txt in all_text:
-                text += txt.text
-                #encoding = chardet.detect(txt.text)
-                #print(encoding['encoding'])
-                text = text.replace('\\xa0', ' ')
-                text = text.replace('\\xc2', ' ')
-                text = text.replace('\\n', '\n')
-                text = text.replace('"','')
-                text = text.replace('"','')
-                text = text.replace("b'", "")
-                text += "\n"
-            i += 1
-        return text
-
-
-    # Transform the dictionary to CSV
-    def Convert_to_csv(data, fileName = "test.csv"):
-        csvfile = open(fileName, 'w', newline='')
-        file = csv.writer(csvfile)
-        labels = ['identifier', 'title', 'date', 'stage', 'activity', 'committee', 'details']
-        file.writerow(labels)
-        for row in data:
-            text = []
-            text.append(row.identifier)
-            text.append(row.title)
-            text.append(row.events[0]['date'])
-            text.append(row.events[0]['stage'])
-            text.append(row.events[0]['activity'])
-            text.append(row.events[0]['committee'])
-            text.append(str(row.details.encode('utf-8')))
-            file.writerow(text)
-            # if there are multiple rows
-            if len(row.events) > 1:
-                for i in range(1, len(row.events)):
-                    text = ["",""]
-                    text.append((row.events[i]['date']))
-                    text.append((row.events[i]['stage']))
-                    text.append(row.events[i]['activity'])
-                    text.append(row.events[i]['committee'])
-                    file.writerow(text)
-
-        csvfile.close()
-
-    # Reads in the lines from the file and cleans them up
-    def test_csv(filename = "Legislative_Assembly_of_Ontario.csv"):
-        file = open(filename, mode = 'r')
-        lines = file.readlines()
-        file.close()
-        clean_lines = []
-        for line in lines:
-            clean = line.replace('\\xa0', ' ')
-            clean = clean.replace('\\xc2', ' ')
-            clean = clean.replace('\\n', '\n')
-            clean = clean.replace('"','')
-            clean = clean.replace('"','')
-            clean = clean.replace("b'", "")
-            clean_lines.append(clean)
-        return clean_lines
-
-    # the main function that scrapes the Legislative Assembly of Ontario
-    # it will be saved as Legislative_Assembly_of_Ontario.csv
     def retrieve_bills(self,  filename = None):
-        url = "http://www.ontla.on.ca/web/bills/bills_current.do?locale=fr"
+        url = "http://www.ontla.on.ca/web/bills/bills_all.do?locale=fr"
         url_base = "http://www.ontla.on.ca/web/bills/"
 
         # Where all the data from the bills will be stored
@@ -129,60 +46,141 @@ class Ontario( Scraper ):
 
         page = urllib2.urlopen(url)
         soup = BeautifulSoup(page, "html.parser")
-        bills = soup.find_all("div", attrs = {"class": "billstatus"})
+        bills = soup.find_all("td", attrs = {"class": "nocell"})
 
+        counter = 1
         for bill in bills:
-
             if counter % 10 == 0:
                 print("Currently at bill " + str(counter))
             counter += 1
 
             # Data is separated by commas in the CSV so the commas are removed
-
+            bill_info = {}
             # the id is bill73 for example
-            identifier = self.legislature + bill.get("id").replace(","," ")
+            bill_info['id'] = bill.text
 
             # has the title and the url for the detailed data
-            title_url = bill.find('a', href=True)
+            title_url = bill.findNext('td',attrs = {'class': 'titlecell'})
+
+            # the id is bill73 for example
+            identifier = self.legislature + bill.text
 
             title = title_url.text.strip().replace(","," ")
 
-            bill_info = Bill(identifier, title, self.legislature)
+            billInst = Bill(identifier, title, self.legislature)
 
-            # If there is more than one row in the table, save all rows
-            # Each attribute is saved in a list for that attribute
-            current_row = bill.findNext('tbody').find('tr')
-            while current_row != None:
-                date = current_row.find('td', attrs = {'class' : "date"}).text.strip().replace(","," ")
-                stage = current_row.find('td', attrs = {'class' : "stage"}).text.strip().replace(","," ")
-                activity = current_row.find('td', attrs = {'class' : "activity"}).text.strip().replace(","," ")
-                committee = current_row.find('td', attrs = {'class' : "committee"}).text.strip().replace(","," ")
-                bill_info.addEvent(stage, date, activity, committee)
+            bill_info['title'] = title_url.text.strip().replace(","," ")
+            bill_info['sponsor'] = bill.findNext('td',attrs = {'class': 'sponsorcell'}).text
 
-                current_row = current_row.findNextSibling('tr')
-
-            #Ontario.sanitizeEventsDate(bill_info)
+            bill_info['date'] = []
+            bill_info['stage'] = []
+            bill_info['activity'] = []
+            bill_info['committee'] = []
 
             # Getting the url of the detailed info
-            info_url = url_base + title_url['href']
-            bill_info.setDetails(Ontario.Extract_Info_Ontario(info_url))
+            info_url = url_base + title_url.find('a')['href']
+            bill_info = Ontario.Extract_Events_Ontario(info_url, bill_info, billInst)
+            bill_info['details'] = Ontario.Extract_Info_Ontario(info_url)
+            billInst.setDetails(Ontario.Extract_Info_Ontario(info_url))
 
-            self.scrapeLawsinBill(bill_info)
+            self.scrapeLawsinBill(billInst)
 
-            print(bill_info.details)
-
-            data.append(bill_info)
+            data.append(billInst)
 
         if filename == None:
             # it will be saved as Legislative_Assembly_of_Ontario.csv
             filename = soup.find("meta", attrs = {'name' : "dc:publisher"})['content']
             filename = filename.replace(" ", "_")
             filename += ".csv"
-        Ontario.Convert_to_csv(data, filename)
 
         self.bills=data
-
         return data
+
+    def Extract_Events_Ontario(url, bill_info, billInst):
+
+        data = {}
+
+        # get the details of events
+        url = url.replace('ParlSessionID=','&detailPage=bills_detail_status')
+
+        try:
+            response = requests.get(url)
+        except:
+            print("There was an issue connecting to the internet")
+            return
+
+        if response.status_code != 200:
+            print("There was an error finding the detailed page")
+            return
+
+        page = urllib2.urlopen(url)
+        soup = BeautifulSoup(page).find('table')
+
+        if not soup:
+            time.sleep(1)
+            # time out to let reconnect to internet
+            soup = soup = BeautifulSoup(page, "html.parser").find('table')
+            if not soup:
+                return bill_info
+
+        counter = 0
+        data = soup.find('tr', attrs = {'class':'evenrow'})
+        while data:
+
+            date=data.findNext('td', attrs = {'class' : "date"}).text.strip().replace(","," ")
+            stage=data.findNext('td', attrs = {'class' : "stage"}).text.strip().replace(","," ")
+            activity=data.findNext('td', attrs = {'class' : "activity"}).text.strip().replace(","," ")
+            committee=data.findNext('td', attrs = {'class' : "committee"}).text.strip().replace(","," ")
+            bill_info['date'].append(date)
+            bill_info['stage'].append(stage)
+            bill_info['activity'].append(activity)
+            bill_info['committee'].append(committee)
+            billInst.addEvent(stage, date, activity, committee)
+
+            counter += 1
+            if counter % 2 == 0:
+                data = data.findNext('tr', attrs = {'class':'evenrow'})
+            else:
+                data = data.findNext('tr', attrs = {'class':'oddrow'})
+
+
+        return bill_info
+
+
+    # Gets all the text from the detailed info page
+    def Extract_Info_Ontario(url):
+        try:
+            response = requests.get(url)
+        except:
+            print("There was an issue connecting to the internet")
+            return
+
+        if response.status_code != 200:
+            print("There was an error finding the detailed page")
+            return
+
+        page = urllib2.urlopen(url)
+        soup = BeautifulSoup(page)
+
+        text = ""
+        wordSection = ""
+        i = 1
+        # check all the word sections starting at 1
+        while wordSection != None:
+            section = "WordSection" + str(i)
+
+            wordSection = soup.find("div", attrs = {'class' : section})
+
+            if wordSection == None:
+                break
+
+            # Finds all the text in the word section
+            all_text = wordSection.find_all("span")
+            for txt in all_text:
+                text += txt.text
+                text += "\n"
+            i += 1
+        return text
 
     def scrapeLawsinBill(self, bill):
         modification = re.findall(Ontario.rgx_modified_title, bill.details)
@@ -191,11 +189,12 @@ class Ontario( Scraper ):
         else:
             for match in modification:
                 modifiedstripped=match.split('modifiant')[1]
-                modifiedLaws = modifiedstripped.split(Ontario.law_delimiter_str)
+                modifiedLaws = re.split(Ontario.law_delimiter_str, modifiedstripped)
                 for modifiedLaw in modifiedLaws:
                     if modifiedLaw.find('Loi')!=-1 or modifiedLaw.find('Code')!=-1:
-                        print(modifiedLaw)
+                        print(modifiedLaw+"noni")
                         bill.addLaw(modifiedLaw)
+                        
 
     def sanitizeEventsDate(bill):
         locale.setlocale(locale.LC_TIME, "fr-CA")
