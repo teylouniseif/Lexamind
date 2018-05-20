@@ -65,19 +65,24 @@ print(str(details, 'utf-8'))"""
 x=User("teylouniseif@gmail.com", "teylouniseif@gmail.com", "diazbrother")
 x.addLaw("police act")
 x.addLaw("charte de la ville de montréal")
-
-v=Information()
-v.addUser(x)
+x.addLaw("la loi de 1991 sur les audiologistes")
+x.addLaw("loi sur la sûreté des déplacements aériens")
 
 all=Team()
 all.addUser(x)
 
 all.store_users()
-all.load_users()
+all.store_accounts()
+#all.load_users_from_accounts()
 
 
-
+v=Information()
+for y in all.users:
+    print("noice")
+    v.addUser(y)
 v.build_archives()
+
+input("wait")
 
 Email.send_Email("teylouniseif@gmail.com")
 

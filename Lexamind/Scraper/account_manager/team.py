@@ -4,10 +4,10 @@
 Created on Tue Jan  30 21:57:00 2018
 @author: Saif Kurdi-Teylouni
 """
-from storer.storer import storeUser, retrieveUser, retrieveUsersByTeam, storeLaw, deleteLaw, retrieveLaw, updateLaw, storeAccount
+from storer.storer import storeUser, retrieveUser, retrieveUsersByTeam, storeLaw, deleteLaw, retrieveLaw, updateLaw, storeAccount, retrieveAllAccounts
 from scrapers.scraper_api import Law
 from collections import namedtuple
-import jsonpickle, re
+import jsonpickle, re, json
 
 class User( object):
 
@@ -43,17 +43,30 @@ class Team( object ):
             for law in user.lawnames:
                 print("this is it: "+law)
 
+    def load_users_from_accounts(self):
+        accounts=retrieveAllAccounts()
+        for account in accounts:
+            print("noice")
+            user=User(account['username'], account['username'], account['password'], json.loads(account['lawnames']))
+            self.users.append(user)
+        for user in self.users:
+            for law in user.lawnames:
+                print("this is it: "+law)
+
     def store_users(self):
         for user in self.users:
             storeUser(user)
-            #need to update account table
-            storeAccount(user)
             #need to update law table also
             for lawname in user.lawnames:
                 law=Law(lawname, lawname)
                 cachedLaw=retrieveLaw(lawname)
                 if cachedLaw==None:
                     storeLaw(law)
+
+    def store_accounts(self):
+        for user in self.users:
+            #need to update account table
+            storeAccount(user)
 
     def addUser(self, user):
         self.users.append(user)

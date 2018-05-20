@@ -7,6 +7,8 @@ Created on Tue Jan  30 21:57:00 2018
 from .database import Database
 import numpy
 
+remote_database="mongodb+srv://Lexamind:Lexamind@cluster0-zowtj.mongodb.net/test"
+
 def storeBill(bill):
     bill.details=bill.details.encode('utf-8')
     record=Database.createDocumentfromField(bill, bill.identifier)
@@ -97,16 +99,16 @@ def storeArchive(archive):
     record={}
     record["_id"]=archive.identifier
     record["lastUpdate"]=archive.lastUpdate
-    #record["messages"]=archive.messages
-    Database.addRecord(record, "Lexamind", "Archives")
+    record["messages"]=archive.lastUpdate
+    Database.addRecord(record, "Lexamind", "Archives", remote_database)
 
 def deleteArchive(archive):
     record={}
     record["_id"]=archive.identifier
-    Database.deleteRecord(record, "Lexamind", "Archives")
+    Database.deleteRecord(record, "Lexamind", "Archives", remote_database)
 
 def retrieveArchive(id):
-    archive=Database.findRecord(id, "Lexamind", "Archives")
+    archive=Database.findRecord(id, "Lexamind", "Archives", remote_database)
     if archive==None:
         return None
     return archive["_id"], archive["lastUpdate"]
@@ -115,20 +117,31 @@ def updateArchive(archive):
     record={}
     record["_id"]=archive.identifier
     record["lastUpdate"]=archive.lastUpdate
-    #record["messages"]=archive.messages
-    Database.updateRecord(record, "Lexamind", "Archives")
+    record["messages"]=archive.lastUpdate
+    Database.updateRecord(record, "Lexamind", "Archives", remote_database)
 
 def storeAccount(user):
     record={}
     record["_id"]=user.identifier
-    record["laws"]=",".join(user.lawnames)
+    record["laws"]=str(user.lawnames)
     record["password"]=user.password
-    Database.addRecord(record, "Lexamind", "Accounts")
+    Database.addRecord(record, "Lexamind", "Accounts", remote_database)
 
 def deleteAccount(user):
     record={}
     record["_id"]=user.identifier
-    Database.deleteRecord(record, "Lexamind", "Accounts")
+    Database.deleteRecord(record, "Lexamind", "Accounts", remote_database)
+
+def retrieveAllAccounts():
+    accounts=Database.findAllRecords("Lexamind", "Accounts", remote_database)
+    if accounts==None:
+        return None
+    accs=[]
+    for account in accounts:
+        print(account)
+        acc={'username':account['_id'],'lawnames':account['laws'], 'password':account['password']}
+        accs.append(acc)
+    return accs
 
 def retrieveAccount(id):
     pass
@@ -136,6 +149,6 @@ def retrieveAccount(id):
 def updateAccount(user):
     record={}
     record["_id"]=user.identifier
-    record["laws"]=",".join(user.lawnames)
+    record["laws"]=str(user.lawnames)
     record["password"]=user.password
-    Database.updateRecord(record, "Lexamind", "Accounts")
+    Database.updateRecord(record, "Lexamind", "Accounts", remote_database)

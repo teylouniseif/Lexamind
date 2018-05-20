@@ -32,6 +32,7 @@ class Email(object):
         msg['To'] = recipient
         if update!= None:
             msg.attach(MIMEText(update.get_Content(), 'html'))
+            print (msg.as_string())
             server.sendmail(Email.user, recipient, msg.as_string())
 
         server.quit()

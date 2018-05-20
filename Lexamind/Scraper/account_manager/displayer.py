@@ -4,7 +4,7 @@
 Created on Tue Jan  30 21:57:00 2018
 @author: Saif Kurdi-Teylouni
 """
-from storer.storer import storeUser, retrieveUser, retrieveUsersByTeam, storeLaw, deleteLaw, retrieveLaw, updateLaw, storeArchive, retrieveBill
+from storer.storer import storeUser, retrieveUser, retrieveUsersByTeam, storeLaw, deleteLaw, retrieveLaw, updateLaw, storeArchive, updateArchive, retrieveBill
 from collections import namedtuple
 from .team import User
 from .html_template import Template
@@ -52,7 +52,7 @@ class Information( object ):
                     updatetext+=self.build_update(user, bill, cachedLaw)
         html=self.inject_update_in_template(updatetext)
         update=Update(user.username, user.username, html)
-        storeArchive(update)
+        updateArchive(update)
 
     def build_update(self, user, bill, cachedLaw):
         #build html src code
@@ -69,7 +69,7 @@ class Information( object ):
     		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+billno+"</td>\r\n"\
     		"                  <td style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+date+"</td>\r\n"\
     		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+bill.legislature+"</td>\r\n"\
-    		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+"nourlfornow"+"</td>\r\n"\
+    		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+"N/A"+"</td>\r\n"\
     		"                </tr>\r\n"
         return html
 
