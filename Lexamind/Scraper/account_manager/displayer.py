@@ -48,11 +48,11 @@ class Information( object ):
                 bills=cachedLaw.getDependantBills()
                 for billid in bills:
                     bill=retrieveBill(billid)
-                    print(bill.identifier)
+                    print(bill.identifier+"here")
                     updatetext+=self.build_update(user, bill, cachedLaw)
         html=self.inject_update_in_template(updatetext)
         update=Update(user.username, user.username, html)
-        updateArchive(update)
+        storeArchive(update)
 
     def build_update(self, user, bill, cachedLaw):
         #build html src code

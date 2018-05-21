@@ -23,7 +23,7 @@ import jsonpickle
 
 #Email.send_Email("teylouniseif@gmail.com")
 
-"""y=Quebec()
+"""y=Canada()
 y.retrieve_bills()
 y.store_bills()
 
@@ -35,9 +35,9 @@ y.retrieve_bills()
 y.store_bills()
 y=Alberta()
 y.retrieve_bills()
-y.store_bills()
+y.store_bills()"""
 
-print("noni")"""
+print("noni")
 
 #for bill in y.bills:
     #if len(bill.events)!=0:
@@ -69,16 +69,15 @@ x.addLaw("la loi de 1991 sur les audiologistes")
 x.addLaw("loi sur la sûreté des déplacements aériens")
 
 all=Team()
-all.addUser(x)
+"""all.addUser(x)
 
 all.store_users()
-all.store_accounts()
-#all.load_users_from_accounts()
-
+all.store_accounts()"""
+all.load_users_from_accounts()
+print(all.users)
 
 v=Information()
 for y in all.users:
-    print("noice")
     v.addUser(y)
 v.build_archives()
 

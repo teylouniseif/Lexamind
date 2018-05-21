@@ -290,6 +290,7 @@ class Quebec( Scraper ):
     # The original format is something along the lines of '12 juin 2014'
     # Returns in format year month date
     def get_date(date):
+        #return date
         date = date.lower()
 
         # Finding the date

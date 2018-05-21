@@ -47,11 +47,15 @@ class Team( object ):
         accounts=retrieveAllAccounts()
         for account in accounts:
             print("noice")
-            user=User(account['username'], account['username'], account['password'], json.loads(account['lawnames']))
+            lawnameslist=account['lawnames'].strip("[]").split(",")
+            for i in range(len(lawnameslist)):
+                lawnameslist[i]=lawnameslist[i].strip("\'")
+                lawnameslist[i]=lawnameslist[i].strip("\"")
+            user=User(account['username'], account['username'], account['password'], lawnameslist)
             self.users.append(user)
         for user in self.users:
             for law in user.lawnames:
-                print("this is it: "+law)
+                print("this is it: "+account['username']+law)
 
     def store_users(self):
         for user in self.users:

@@ -151,7 +151,7 @@ class Alberta( Scraper ):
                                 date=readings.split('Royal Assent')[1].split("(")[1].split("aft")[0]
                                 bill_info.addEvent("Royal Assent", date, None, None)
 
-            #Alberta.sanitizeEventsDate(bill_info)
+            Alberta.sanitizeEventsDate(bill_info)
 
             # Cleaning up the data
             for i in range(len(row)):

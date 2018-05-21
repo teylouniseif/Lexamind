@@ -36,7 +36,8 @@ class Database( object ):
         #col=Database.findCollection(database, collection, database_url)
         col=Database.findCollection(database, collection, database_url)
         #for item in parsed["Records"]:
-        col.insert(data)
+        #col.insert(data)
+        col.update({'_id':data["_id"]}, data, upsert=True)
 
         #db=client.admin
         # Issue the serverStatus command and print the results
