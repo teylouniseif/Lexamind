@@ -123,6 +123,7 @@ def updateArchive(archive):
 def storeAccount(user):
     record={}
     record["_id"]=user.identifier
+    print(user.lawnames)
     record["laws"]=str(user.lawnames)
     record["password"]=user.password
     Database.addRecord(record, "Lexamind", "Accounts", remote_database)

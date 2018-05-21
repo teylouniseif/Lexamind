@@ -46,11 +46,10 @@ class Team( object ):
     def load_users_from_accounts(self):
         accounts=retrieveAllAccounts()
         for account in accounts:
-            print("noice")
             lawnameslist=account['lawnames'].strip("[]").split(",")
             for i in range(len(lawnameslist)):
                 lawnameslist[i]=lawnameslist[i].strip("\'")
-                lawnameslist[i]=lawnameslist[i].strip("\"")
+                lawnameslist[i]=lawnameslist[i].strip("\"").split("(")[0]
             user=User(account['username'], account['username'], account['password'], lawnameslist)
             self.users.append(user)
         for user in self.users:

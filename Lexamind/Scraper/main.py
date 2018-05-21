@@ -14,14 +14,10 @@ from account_manager.team import Team, User
 from account_manager.displayer import Information
 from account_manager.emailer import Email
 from scrapers.version_converter import call_python_version
-#from federal_scraper.federal_scraper import my_function
-#from scrapers.federal_scraper import my_function
 from storer.database import Database
 from storer.storer import retrieveLaw
 import json
 import jsonpickle
-
-#Email.send_Email("teylouniseif@gmail.com")
 
 """y=Canada()
 y.retrieve_bills()
@@ -37,15 +33,6 @@ y=Alberta()
 y.retrieve_bills()
 y.store_bills()"""
 
-print("noni")
-
-#for bill in y.bills:
-    #if len(bill.events)!=0:
-    #    print(bill.events[0]['date']+"\n")
-    #print(bill.title)
-    #print(bill.details)
-    #if len(bill.lawnames)!=0:
-    #    print(bill.lawnames[0]+"noni")
 
 #y.retrieve_bills()
 #y.store_bills()
@@ -62,18 +49,68 @@ print(str(details, 'utf-8'))"""
 #law=retrieveLaw("code de la sécurité routière".encode("utf-8"))
 #print(law.title)
 
-x=User("teylouniseif@gmail.com", "teylouniseif@gmail.com", "diazbrother")
+x=User("lexamindcooperathon@gmail.com", "lexamindcooperathon@gmail.com", "billscraper")
+x.addLaw("Loi sur le financement des petites entreprises (CAN)")
+x.addLaw("Loi canadienne sur les sociétés par actions (CAN)")
+x.addLaw("Loi sur la publicité légale des entreprises (QC)")
+x.addLaw("Loi sur les sociétés par actions (QC)")
+x.addLaw("Franchise Act (C-B)")
+x.addLaw("Loi électorale du Canada (CAN)")
+x.addLaw("Loi concernant le financement des partis politiques (QC)")
+x.addLaw("Builders' Lien Act (Alb.)")
+x.addLaw("Builders' Lien Act (C-B)")
+x.addLaw("Builders' Lien Act (Man.)")
+x.addLaw("Mechanics' Lien Act (N-B)")
+x.addLaw("Construction Lien Act (Ont.)")
+x.addLaw("The Builders' Lien Act (Sask.)")
+x.addLaw("Mechanics' Lien Act (T-N-L)")
+x.addLaw("Mechanics Lien Act (Nt)")
+x.addLaw("Builders Lien Act (Yn)")
+x.addLaw("Code civil du Québec, Livre sixième, Titre troisième (QC)")
+x.addLaw("Code civil")
+x.addLaw("Land Title Act (C-B)")
+x.addLaw("Land Title and Survey Authority Act (C-B)")
+x.addLaw("Land Registration Act (N-E)")
+x.addLaw("Registry Act (N-E)")
+x.addLaw("Registry Act (I-P-E)")
+x.addLaw("Registry Act (Ont)")
+x.addLaw("Registry Act (N-B)")
+x.addLaw("Registry Act (Man.)")
+x.addLaw("Land Titles Act (Alb.)")
+x.addLaw("The Land Titles Act, 2000 (Sask.)")
+x.addLaw("Registration of Deeds Act, 2009 (T-N-L)")
+x.addLaw("Code civil du Québec, Livre sixième, Titre deuxième (QC)")
+x.addLaw("Personal Property Security Act (Alb.)")
+x.addLaw("Personal Property Security Act (C-B)")
+x.addLaw("Personal Property Security Act (Man.)")
+x.addLaw("Personal Property Security Act (N-E)")
+x.addLaw("Personal Property Security Act (Ont.)")
+x.addLaw("Personal Property Security Act (N-B)")
+x.addLaw("Personal Property Security Act (I-P-E)")
+x.addLaw("Personal Property Security Act (Sask.)")
+x.addLaw("Code civil du Québec, Livre sixième, Titre troisième (QC)")
+x.addLaw("Personal Property Security Act (T-N-L)")
+x.addLaw("Personal Property Security Act (T-N-O)")
+x.addLaw("Personal Property Security Act (Nt)")
+x.addLaw("Personal Property Security Act (Yn)")
+x.addLaw("Loi sur la marine marchande du Canada (CAN)")
+x.addLaw("New Home Buyer Protection Act (Alb.)")
+x.addLaw("Loi sur la faillite et l'insolvabilité (CAN)")
+x.addLaw("Loi sur le recyclage des produits de la criminalité et le financement des activités terroristes (CAN)")
+x.addLaw("B-8 - Mécanismes de dissuasion et de détection du recyclage des produits de la criminalité et du financement des activités terroristes (BSIF – CAN)")
 x.addLaw("police act")
 x.addLaw("charte de la ville de montréal")
 x.addLaw("la loi de 1991 sur les audiologistes")
 x.addLaw("loi sur la sûreté des déplacements aériens")
+x.addLaw("loi sur la protection des renseignements personnels dans le secteur privé")
+
 
 all=Team()
-"""all.addUser(x)
+all.addUser(x)
 
 all.store_users()
-all.store_accounts()"""
-all.load_users_from_accounts()
+all.store_accounts()
+#all.load_users_from_accounts()
 print(all.users)
 
 v=Information()
@@ -81,9 +118,7 @@ for y in all.users:
     v.addUser(y)
 v.build_archives()
 
-input("wait")
-
-Email.send_Email("teylouniseif@gmail.com")
+Email.send_Email("lexamindcooperathon@gmail.com")
 
 #emails=[BillGates@gmail.com,SteveJobs@yahoo.com,BillJobs@aol.com,nick@gmail.com,vic@gmail.com,prince@yahoo.in]
 
@@ -164,15 +199,3 @@ Règlementation en valeurs mobilières\n
 Loi sur le lobbying (CAN)\n"""]
 
 #password=["gates123", "jobs4days", "therealjobs", "diazbrother", "vic451","princeofwales"]
-
-"""for bill in y.bills:
-    #bill['_id']=bill['identifier']
-    record=Database.createDocumentfromField(bill, 'identifier')
-    #x.deleteRecord(bill, "Lexamind", "Users")
-    Database.addRecord(record, "Lexamind", "Users")
-    bill.title='noni'
-    record=Database.createDocumentfromField(bill, 'identifier')
-    Database.updateRecord(record, "Lexamind", "Users")
-    newbill=Database.findRecord(record['_id'], "Lexamind", "Users")
-    print(jsonpickle.decode(newbill['item']).title)
-    print(jsonpickle.decode(newbill['item']).details)"""
