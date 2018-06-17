@@ -15,7 +15,7 @@ if parentDir not in sys.path:
 import urllib.request as urllib2
 from bs4 import BeautifulSoup
 import requests
-from scraper_api import Scraper, Bill
+from .scraper_api import Scraper, Bill
 import csv
 import re
 import locale, time
@@ -35,7 +35,7 @@ class Ontario( Scraper ):
     # Set most_recent to True
     def retrieve_bills(self, most_recent = False, filename = None):
         url = "https://www.ola.org/fr/affaires-legislatives/projets-loi/"
-        url_base = "https://www.ola.org"        
+        url_base = "https://www.ola.org"
 
         # Where all the data from the bills will be stored
         data = []
@@ -53,13 +53,15 @@ class Ontario( Scraper ):
 
         page = urllib2.urlopen(url)
         soup = BeautifulSoup(page, "html.parser")
-        
+
         soup = soup.find('table')
         sessions = soup.findAll('tr')[1:]
-        
-        if most_recent:
-            sessions = [sessions[0]]
-        
+
+        #if most_recent:
+        #    sessions = [sessions[0]]
+        sessions = [sessions[0]]
+
+
         for session in sessions:
             row = session.find('td')
             if not row:
@@ -76,43 +78,46 @@ class Ontario( Scraper ):
             for bill in bills:
                 bill = bill.findNext('td')
                 bill_info = {}
-        
+
                 bill_info['id'] = bill.text.strip()
-                
+
                 if counter % 10 == 0:
                     print("Currently at bill " + bill_info['id'])
-                    return data
                 counter += 1
-                
+
                 # has the title and the url for the detailed data
                 title_url = bill.findNext('a')
-                
+
                 # the id is bill73 for example
                 identifier = self.legislature + bill.text
-                
+
                 title = title_url.text.strip()
-                
+
                 billInst = Bill(identifier, title, self.legislature)
-                
+
                 bill_info['title'] = title
-    
+
                 bill_info['sponsor'] = bill.findNext('td', attrs = {'headers': 'view-field-member-table-column'}).text.strip()
-                
+
                 bill_info['date'] = []
                 bill_info['stage'] = []
                 bill_info['activity'] = []
                 bill_info['committee'] = []
                 # Getting the url of the detailed info
-        
+
                 info_url = url_base + title_url['href']
                 bill_info = Ontario.Extract_Events_Ontario(info_url, bill_info, billInst)
-                bill_info['details'] = Ontario.Extract_Info_Ontario(info_url)                
+                bill_info['details'] = Ontario.Extract_Info_Ontario(info_url)
                 bill_info['url'] = info_url
-                
+
                 billInst.setDetails(Ontario.Extract_Info_Ontario(info_url))
-    
+
+                Ontario.sanitizeEventsDate(billInst)
+
+                #print(billInst.details)
+
                 self.scrapeLawsinBill(billInst)
-    
+
                 data.append(billInst)
 
         if filename == None:
@@ -123,30 +128,30 @@ class Ontario( Scraper ):
 
     def Extract_Events_Ontario(url, bill_info, billInst):
         data = {}
-        
+
         # get the details of events
         url = url + '/etapes'
-        
+
         try:
             response = requests.get(url)
         except:
             print("There was an issue connecting to the internet")
             return
-        
+
         if response.status_code != 200:
             print("There was an error finding the detailed page")
             return
-        
+
         page = urllib2.urlopen(url)
         soup = BeautifulSoup(page).find('table')
-        
+
         if not soup:
             time.sleep(1)
             # time out to let reconnect to internet
             soup = soup = BeautifulSoup(page, "html.parser").find('table')
             if not soup:
                 return bill_info
-        
+
         soup = soup.find('tr')
         data = soup.findNext('tr')
         while data:
@@ -162,10 +167,10 @@ class Ontario( Scraper ):
             col = col.findNext('td')
             committee = col.text.strip()
             bill_info['committee'].append(committee)
-            
+
             billInst.addEvent(stage, date, activity, committee)
             data = data.findNext('tr')
-        
+
         return bill_info
 
 
@@ -202,6 +207,13 @@ class Ontario( Scraper ):
             for txt in all_text:
                 text += txt.text
                 text += "\n"
+            all_text = wordSection.find("h2", attrs = {'class' : "longtitle"})
+            if all_text!=None:
+                for txt in all_text:
+                    #print(txt)
+                    text += txt.replace("\n", " ").replace("\r", " ")
+
+            text += "\n"
             i += 1
         return text
 
@@ -215,36 +227,37 @@ class Ontario( Scraper ):
                 modifiedLaws = re.split(Ontario.law_delimiter_str, modifiedstripped)
                 for modifiedLaw in modifiedLaws:
                     if modifiedLaw.find('Loi')!=-1 or modifiedLaw.find('Code')!=-1:
-                        print(modifiedLaw+"noni")
+                        #print(modifiedLaw+"noni")
                         bill.addLaw(modifiedLaw)
-                        
+
 
     def sanitizeEventsDate(bill):
-        locale.setlocale(locale.LC_TIME, "fr-CA")
+        #locale.setlocale(locale.LC_TIME, "fr-CA")
         for event in bill.events:
-            print('noni'+event['date'])
+            #print('noni'+event['date'])
             try:
-                formatteddate=datetime.strptime(event['date'].strip(), '%d %b %Y').strftime('%d/%m/%Y')
+                formatteddate=datetime.strptime(event['date'].strip(), '%d/%m/%Y').strftime('%Y-%m-%d')
                 event['date']=formatteddate
-                print('nonigood'+event['date'])
+                #print('nonigood'+event['date'])
             except:
                 pass
-        locale.setlocale(locale.LC_TIME, "en-CA")
+        return
+        #locale.setlocale(locale.LC_TIME, "en-CA")
 
     # Get date, returns ##/##/#### - day/month/year
     def get_date(date):
         date = date.lower()
         # Finding the numbers in the date
         # The first is the date, the second is the year
-        
+
         day = date.split(' ')[0]
         year = date.split(' ')[2]
-        
+
         if int(day) < 10:
             day = '0' + day
-    
+
         month = ""
-        
+
         if 'jan' in date:
             month = '01'
         elif 'feb' in date:
@@ -272,5 +285,5 @@ class Ontario( Scraper ):
         else:
             # No month
             return False
-        
+
         return day + '/' + month + '/' + year

@@ -25,7 +25,7 @@ class Quebec( Scraper ):
 
     def __init__(self):
         super(Scraper, self).__init__()
-        self.legislature="Quebec"
+        self.legislature="Québec"
 
     # Takes in a url, checks the connection and returns the soup
     def Make_Soup(url):
@@ -77,17 +77,16 @@ class Quebec( Scraper ):
         table = soup.find('table', attrs = {"id":'tblListeProjetLoi'})
         bills = table.find('tbody').findAll('tr')
 
-        counter=0
         for bill in bills:
 
-            if counter > 50:
-                continue
-            else:
-                counter=counter+1
             number = int(bill.findNext('td').text.strip())
             link = bill.findNext('a')
             title = link.text.split(" (PDF")[0] # So we don't get the information about the PDF
             bill_info = Bill(self.legislature+str(number), title, self.legislature)
+            #if bill_info.identifier!="Québec99":
+            #    print(bill_info.identifier)
+            #    continue
+
             link = link.findNext('a')
             url = base + link['href']
             details, text = Quebec.get_text(url)
@@ -291,10 +290,12 @@ class Quebec( Scraper ):
     # Returns in format year month date
     def get_date(date):
         #return date
+
         date = date.lower()
 
         # Finding the date
         letter = date[0]
+        print(letter)
         i = 1
         while not letter.isdigit() and i < len(date):
             letter = date[i]
@@ -316,11 +317,11 @@ class Quebec( Scraper ):
             letter = date[i]
             i += 1
 
-        year = ""
+        year = letter
 
         while letter.isdigit() and i < len(date):
-            year += letter
             letter = date[i]
+            year += letter
             i += 1
 
         month = ""
@@ -350,7 +351,7 @@ class Quebec( Scraper ):
         elif 'decembre' in date:
             month = '12'
 
-        return year + month + day
+        return year + "-" + month + "-" + day
 
 
     def Reload_Data(filepath = "assemblee_nationale.csv"):
@@ -413,6 +414,7 @@ class Quebec( Scraper ):
                         #strg=lawstrings[index]
                         strg=next(it)
 
+                        #print(law)
                         bill.addLaw(re.compile(r".*œ\s|\s\(|;|\.").split(law)[1])
 
                         while strg.isdigit() or strg.strip()=='':

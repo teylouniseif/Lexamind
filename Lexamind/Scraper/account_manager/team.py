@@ -25,7 +25,9 @@ class User( object):
         self.lawnames=lawnames
 
     def addLaw(self, law):
-        sanitizedlaw=str(law.strip().lower())
+        #sanitizedlaw=law.lower().split("(")[0].strip()
+        sanitizedlaw=law.lower().strip()
+        print(sanitizedlaw)
         self.lawnames.append(sanitizedlaw)
 
 class Team( object ):
@@ -48,8 +50,8 @@ class Team( object ):
         for account in accounts:
             lawnameslist=account['lawnames'].strip("[]").split(",")
             for i in range(len(lawnameslist)):
-                lawnameslist[i]=lawnameslist[i].strip("\'")
-                lawnameslist[i]=lawnameslist[i].strip("\"").split("(")[0]
+                lawnameslist[i]=lawnameslist[i].strip("\"")
+                lawnameslist[i]=lawnameslist[i].strip("\'").split("(")[0]
             user=User(account['username'], account['username'], account['password'], lawnameslist)
             self.users.append(user)
         for user in self.users:

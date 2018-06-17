@@ -107,9 +107,9 @@ class Canada(Scraper, Spider):
             yield result
         else:
             bill=Bill(self.legislature+items['bill_number_and_title'], self.legislature+items['bill_number_and_title'], self.legislature)
-            for k in response.meta['items'].keys():
+            for k in item_dict.keys():
                 if k!='bill_number_and_title' and k!='bill_name' and k!='date':
-                    bill.addEvent(k, response.meta['items'][k], None, None)
+                    bill.addEvent(k, item_dict[k], None, None)
             self.add_bill(bill)
             yield items
 

@@ -280,8 +280,8 @@ class Alberta( Scraper ):
                 datestripped= event['date'].strip()
             print(datedelimiter)
             try:
-                formatteddate=datetime.strptime(datestripped, '%b. %d, %Y').strftime('%d/%m/%Y')
+                formatteddate=datetime.strptime(datestripped, '%b. %d, %Y').strftime('%Y-%m-%d')
                 event['date']=formatteddate
             except:
-                formatteddate=datetime.strptime(datestripped, '%b %d, %Y').strftime('%d/%m/%Y')
+                formatteddate=datetime.strptime(datestripped, '%b %d, %Y').strftime('%Y-%m-%d')
                 event['date']=formatteddate

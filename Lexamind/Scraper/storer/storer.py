@@ -13,10 +13,10 @@ def storeBill(bill):
     bill.details=bill.details.encode('utf-8')
     record=Database.createDocumentfromField(bill, bill.identifier)
     if(retrieveBill(bill.identifier)==None):
-        Database.addRecord(record, "Lexamind", "Bills")
+        Database.addRecord(record, "Lexamind", "Bills", remote_database)
 
 def retrieveBill(id):
-    encodedbill=Database.findRecord(id, "Lexamind", "Bills")
+    encodedbill=Database.findRecord(id, "Lexamind", "Bills", remote_database)
     if encodedbill==None:
         return None
     bill=Database.returnObjfromDocument(encodedbill)
@@ -24,7 +24,7 @@ def retrieveBill(id):
     return bill
 
 def retrieveBillsByLegislature(legislature):
-    encodedbills=Database.findAllRecordsBySubstringMatch(legislature , "Lexamind", "Bills")
+    encodedbills=Database.findAllRecordsBySubstringMatch(legislature , "Lexamind", "Bills", remote_database)
     if encodedbills==None:
         return None
     bills=[]
@@ -36,19 +36,19 @@ def retrieveBillsByLegislature(legislature):
 
 def storeUser(user):
     record=Database.createDocumentfromField(user, user.identifier)
-    Database.addRecord(record, "Lexamind", "Users")
+    Database.addRecord(record, "Lexamind", "Users", remote_database)
 
 def retrieveUser(id):
-    encodeduser=Database.findRecord(id, "Lexamind", "Users")
+    encodeduser=Database.findRecord(id, "Lexamind", "Users", remote_database)
     if encodeduser==None:
         return None
     return Database.returnObjfromDocument(encodeduser)
 
 def retrieveUsersByTeam(team):
     if team==None:
-        encodedusers=Database.findAllRecords("Lexamind", "Users")
+        encodedusers=Database.findAllRecords("Lexamind", "Users", remote_database)
     else:
-        encodedusers=Database.findAllRecordsBySubstringMatch(team , "Lexamind", "Users")
+        encodedusers=Database.findAllRecordsBySubstringMatch(team , "Lexamind", "Users", remote_database)
     if encodedusers==None:
         return None
     users=[]
@@ -58,24 +58,25 @@ def retrieveUsersByTeam(team):
     return users
 
 def storeLaw(law):
-    print(law.identifier)
+    #print(law.identifier)
     record=Database.createDocumentfromField(law, law.identifier)
-    Database.addRecord(record, "Lexamind", "Laws")
+    Database.addRecord(record, "Lexamind", "Laws", remote_database)
     #Database.createSearchIndexfromRecord(law.identifier, "Lexamind", "Laws")
 
 def deleteLaw(law):
     record=Database.createDocumentfromField(law, law.identifier)
-    Database.deleteRecord(record, "Lexamind", "Laws")
+    Database.deleteRecord(record, "Lexamind", "Laws", remote_database)
 
 def retrieveLaw(id):
-    encodedlaw=Database.findRecord(id, "Lexamind", "Laws")
+    encodedlaw=Database.findRecord(id, "Lexamind", "Laws", remote_database)
     if encodedlaw==None:
         return None
     return Database.returnObjfromDocument(encodedlaw)
 
 def updateLaw(law):
+    #print(law.identifier)
     record=Database.createDocumentfromField(law, law.identifier)
-    Database.updateRecord(record, "Lexamind", "Laws")
+    Database.updateRecord(record, "Lexamind", "Laws", remote_database)
 
 """def storeArchive(archive):
     record=Database.createDocumentfromField(archive, archive.identifier)
@@ -123,7 +124,7 @@ def updateArchive(archive):
 def storeAccount(user):
     record={}
     record["_id"]=user.identifier
-    print(user.lawnames)
+    #print(user.lawnames)
     record["laws"]=str(user.lawnames)
     record["password"]=user.password
     Database.addRecord(record, "Lexamind", "Accounts", remote_database)
