@@ -63,13 +63,17 @@ class Information( object ):
         else:
             stage="N/A"
             date="N/A"
+        hyperlink="N/A"
+        if hasattr(bill, 'hyperlink'):
+            hyperlink="<a href="+bill.hyperlink+">Contenu</a>"
+        lawtitle=bill.legislature+" - " +cachedLaw.title.split("(")[0]
         html="                <tr class=\"data-row new\" style=\"padding: 0;vertical-align: top;text-align: left;\">\r\n"\
     		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+billno+"</td>\r\n"\
-    		"                  <td style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+cachedLaw.title+"</td>\r\n"\
+    		"                  <td style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+lawtitle+"</td>\r\n"\
     		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+stage+"</td>\r\n"\
     		"                  <td style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+date+"</td>\r\n"\
     		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+bill.legislature+"</td>\r\n"\
-    		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+"N/A"+"</td>\r\n"\
+    		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif;\">"+hyperlink+"</td>\r\n"\
     		"                </tr>\r\n"
         return html
 

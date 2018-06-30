@@ -125,7 +125,10 @@ def storeAccount(user):
     record={}
     record["_id"]=user.identifier
     #print(user.lawnames)
-    record["laws"]=str(user.lawnames)
+    lawnames=[]
+    for law in user.lawnames:
+        lawnames.append(law.split("(")[1].split(")")[0]+" - "+law.split("(")[0])
+    record["laws"]=str(sorted(lawnames))
     record["password"]=user.password
     Database.addRecord(record, "Lexamind", "Accounts", remote_database)
 

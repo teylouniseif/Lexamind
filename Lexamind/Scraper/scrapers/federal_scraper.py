@@ -132,6 +132,7 @@ class Canada(Scraper, Spider):
         result = dict(response.meta['items'].items() | row_dict.items())
         bill=Bill(self.legislature+result['bill_number_and_title'], self.legislature+result['bill_number_and_title'], self.legislature)
         bill.setDetails(result['Latest Publication'])
+        bill.setHyperlink(response.request.url)
         self.scrapeLawsinBill(bill)
         for k in response.meta['items'].keys():
             if k!='bill_number_and_title' and k!='bill_name' and k!='date':

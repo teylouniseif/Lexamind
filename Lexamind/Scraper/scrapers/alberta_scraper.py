@@ -119,7 +119,7 @@ class Alberta( Scraper ):
                 continue"""
 
             detailed_url = base + str((info.find('a')['href']))
-            details = Alberta.Find_Details(detailed_url)
+            details = Alberta.Find_Details(detailed_url, bill_info)
 
             bill_info.setDetails(details)
             self.scrapeLawsinBill(bill_info)
@@ -173,13 +173,15 @@ class Alberta( Scraper ):
         return data
 
     # Finds the pdf url and extracts the text
-    def Find_Details(url):
+    def Find_Details(url, bill_info):
         soup = Alberta.Make_Soup(url)
         if soup == False:
             return []
         dl = soup.find('div', attrs = {'class':'b_downloads'})
         # All the pages I've seen have been in pdf format
         pdf = dl.find('a')['href']
+
+        bill_info.setHyperlink(pdf)
 
         return Alberta.Extract_Pdf(pdf)
 

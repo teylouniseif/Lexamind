@@ -110,6 +110,7 @@ class Ontario( Scraper ):
                 bill_info['details'] = Ontario.Extract_Info_Ontario(info_url)
                 bill_info['url'] = info_url
 
+                billInst.setHyperlink(info_url)
                 billInst.setDetails(Ontario.Extract_Info_Ontario(info_url))
 
                 Ontario.sanitizeEventsDate(billInst)

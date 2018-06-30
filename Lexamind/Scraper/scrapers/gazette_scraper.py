@@ -23,147 +23,179 @@ gazette date
 
 for each law of interest, any sort of action that is tied to it, reglement, decret, decisions
 """
+from .scraper_api import Scraper, Bill
 
+class GazetteQuebec( Scraper ):
 
-# Takes in a url, checks the connection and returns the soup
-def Make_Soup(url):
+    RELEVANCYSTRING=r"(^loi(s)?|^règlement(s)?)\s+(modifié(e)(s)?|remplacé(e)(s)?|abrogé(e)(s)?).*"
+    MOFIFIEDLAWSTRINGSTART=r"œ.*"#"(loi|code|règlement|charte).*"
+    MOFIFIEDLAWSTRINGEND=r".*;\s*$|.*\.\s*$"
 
-    response = ""
+    def __init__(self):
+        super(Scraper, self).__init__()
+        self.legislature="GazetteQuébec"
 
-    # If there's an issue connecting to the internet, end the program
-    try:
-        response = requests.get(url)
-        if response.status_code != 200:
-            print("There was an error finding the page")
+    # Takes in a url, checks the connection and returns the soup
+    def Make_Soup(url):
+
+        response = ""
+
+        # If there's an issue connecting to the internet, end the program
+        try:
+            response = requests.get(url)
+            if response.status_code != 200:
+                print("There was an error finding the page")
+                return False
+        except:
+            print("There was an issue connecting to the internet")
+            exit()
+
+        page = urllib2.urlopen(url)
+        soup = BeautifulSoup(page, "html.parser")
+
+        # If you try to go to a bill url that doesn't exist
+        if 'inexistant' in soup.text:
             return False
-    except:
-        print("There was an issue connecting to the internet")
-        exit()
 
-    page = urllib2.urlopen(url)
-    soup = BeautifulSoup(page, "html.parser")
+        return soup
 
-    # If you try to go to a bill url that doesn't exist
-    if 'inexistant' in soup.text:
-        return False
+    # The main function to scrape Publications du Quebec
+    # The end year is the oldest year that we'll scrape pdfs for
+    def retrieve_bills(self, start_year = 2018):
+        # This url is very long because the original url kept redirecting to the main page
+        url = "http://www2.publicationsduquebec.gouv.qc.ca/gazette_officielle/partie_2f-liste.php"
+        soup = Make_Soup(url)
 
-    return soup
+        # False when there was an error connecting
+        if soup == False:
+            return False
 
-# The main function to scrape Publications du Quebec
-# The end year is the oldest year that we'll scrape pdfs for
-def Scrape_Quebec(start_year = 2018):
-    # This url is very long because the original url kept redirecting to the main page
-    url = "http://www2.publicationsduquebec.gouv.qc.ca/gazette_officielle/partie_2f-liste.php"
-    soup = Make_Soup(url)
+        data = []
 
-    # False when there was an error connecting
-    if soup == False:
-        return False
+        rows = soup.find_all('div')
 
-    data = []
+        for r in rows:
+            if 'style' in r.attrs and 'background' in r.attrs['style']:
+                year_url = "http" + r.find("a")["onclick"].split("http")[1].split("'")[0]
+                year = year_url.split("gazette=")[1]
+                if int(year) < start_year:
+                    break
+                print("Now scraping: " + year)
+                data += self.Find_Year_Data(year_url, year)
 
-    rows = soup.find_all('div')
+        GazetteQuebec.Convert_To_Csv(data)
 
-    for r in rows:
-        if 'style' in r.attrs and 'background' in r.attrs['style']:
-            year_url = "http" + r.find("a")["onclick"].split("http")[1].split("'")[0]
-            year = year_url.split("gazette=")[1]
-            if int(year) < start_year:
-                break
-            print("Now scraping: " + year)
-            data += Find_Year_Data(year_url, year)
+        return data
 
-    Convert_To_Csv(data)
+    # Scrape all pdfs corresponding to a certain year
+    def Find_Year_Data(self, url, year):
+        soup = Make_Soup(url)
 
-    return data
+        # False when there was an error connecting
+        if soup == False:
+            return []
 
-# Scrape all pdfs corresponding to a certain year
-def Find_Year_Data(url, year):
-    soup = Make_Soup(url)
+        table = soup.find('table')
+        while 'title' not in table.attrs:
+            table = table.findNext('table')
 
-    # False when there was an error connecting
-    if soup == False:
-        return []
+        data = []
+        databill = []
 
-    table = soup.find('table')
-    while 'title' not in table.attrs:
-        table = table.findNext('table')
+        rows = table.findAll('tr')
+        for r in rows:
+            els = r.findAll('td')
 
-    data = []
+            # Finding the gazette number and data
+            gazette = els[0].text
+            date = gazette.split('No. ')[0]
+            number = gazette.split('No. ')[1]
+            print("Scraping pdf number: " + number)
+            # get the last element of the table
+            pdf_url = els[len(els)-1].find('a')['href']
+            # Storing the gazette number, date, the url and the pdf
+            text=GazetteQuebec.Extract_Pdf(pdf_url)
+            data.append([number, date, pdf_url, text])
+            bill_info = Bill(self.legislature+number, self.legislature+number, self.legislature)
+            bill_info.addEvent("Publication", date, None, None)
+            bill_info.setDetails(text)
+            bill_info.setHyperlink(pdf_url)
+            print(bill_info.hyperlink+"hey")
+            self.scrapeLawsinBill(bill_info)
+            databill.append(bill_info)
 
-    rows = table.findAll('tr')
-    for r in rows:
-        els = r.findAll('td')
+        self.bills=databill
+        return data
 
-        # Finding the gazette number and data
-        gazette = els[0].text
-        date = gazette.split('No. ')[0]
-        number = gazette.split('No. ')[1]
-        print("Scraping pdf number: " + number)
-        # get the last element of the table
-        pdf_url = els[len(els)-1].find('a')['href']
-        # Storing the gazette number, date, the url and the pdf
-        data.append([number, date, pdf_url, Extract_Pdf(pdf_url)])
+    def scrapeLawsinBill(self, bill):
+        modification = re.findall(Ontario.rgx_modified_title, bill.details)
+        if modification==None:
+            return
+        else:
+            for match in modification:
+                modifiedstripped=match.split('modifiant')[1]
+                modifiedLaws = re.split(Ontario.law_delimiter_str, modifiedstripped)
+                for modifiedLaw in modifiedLaws:
+                    if modifiedLaw.find('Loi')!=-1 or modifiedLaw.find('Code')!=-1:
+                        #print(modifiedLaw+"noni")
+                        bill.addLaw(modifiedLaw)
 
-    return data
+    # Downloads the pdf and extracts the text
+    def Extract_Pdf(url):
+        data = ""
 
+        onlineFile = urlopen(Request(url)).read()
+        pdfFile = PdfFileReader(BytesIO(onlineFile))
 
-# Downloads the pdf and extracts the text
-def Extract_Pdf(url):
-    data = ""
+        if pdfFile.isEncrypted:
+            fp, pdfFile = GazetteQuebec.decrypt_pdf(url)
+            for pageNum in range(pdfFile.getNumPages()):
+                currentPage = pdfFile.getPage(pageNum)
+                data += currentPage.extractText()
+            fp.close()
+            # delete the files so we can reuse them
+            os.system("del " + encrypted_file)
+            os.system("del " + decrypted_file)
 
-    onlineFile = urlopen(Request(url)).read()
-    pdfFile = PdfFileReader(BytesIO(onlineFile))
+        else:
+            for pageNum in range(pdfFile.getNumPages()):
+                currentPage = pdfFile.getPage(pageNum)
+                data += currentPage.extractText()
 
-    if pdfFile.isEncrypted:
-        fp, pdfFile = decrypt_pdf(url)
-        for pageNum in range(pdfFile.getNumPages()):
-            currentPage = pdfFile.getPage(pageNum)
-            data += currentPage.extractText()
-        fp.close()
-        # delete the files so we can reuse them
-        os.system("del " + encrypted_file)
-        os.system("del " + decrypted_file)
+        return data
 
-    else:
-        for pageNum in range(pdfFile.getNumPages()):
-            currentPage = pdfFile.getPage(pageNum)
-            data += currentPage.extractText()
+    # Requires qpdf!
+    # If the pdf is encrypted, qpdf is used to decrypt it
+    # Requires the pdf to be saved temporarily
+    def decrypt_pdf(url):
+        GazetteQuebec.save_pdf(url)
+        command = ('qpdf --password="" --decrypt ' + encrypted_file + " " + decrypted_file)
 
-    return data
+        result = os.system(command)
+        if result == 1:
+            print("Failure at " + url)
+        fp = open(decrypted_file,'rb')
+        pdfFile = PdfFileReader(fp)
+        return fp, pdfFile
 
-# Requires qpdf!
-# If the pdf is encrypted, qpdf is used to decrypt it
-# Requires the pdf to be saved temporarily
-def decrypt_pdf(url):
-    save_pdf(url)
-    command = ('qpdf --password="" --decrypt ' + encrypted_file + " " + decrypted_file)
+    # Saves the pdf under the name of encrypted_file
+    # This file will be deleted later
+    def save_pdf(url):
+        r = requests.get(url, stream = True)
+        file = open(encrypted_file, 'wb')
+        file.write(r.content)
+        file.close()
 
-    result = os.system(command)
-    if result == 1:
-        print("Failure at " + url)
-    fp = open(decrypted_file,'rb')
-    pdfFile = PdfFileReader(fp)
-    return fp, pdfFile
+    def Convert_To_Csv(data, fileName = "Gazette_Officielle.csv"):
+        csvfile = open(fileName, 'w', newline='',encoding="utf-8")
+        file = csv.writer(csvfile)
+        labels = ['Number','date','url','pdf']
+        file.writerow(labels)
+        for row in data:
+            file.writerow(row)
+        csvfile.close()
+        return
 
-# Saves the pdf under the name of encrypted_file
-# This file will be deleted later
-def save_pdf(url):
-    r = requests.get(url, stream = True)
-    file = open(encrypted_file, 'wb')
-    file.write(r.content)
-    file.close()
+        file.close()
 
-def Convert_To_Csv(data, fileName = "Gazette_Officielle.csv"):
-    csvfile = open(fileName, 'w', newline='',encoding="utf-8")
-    file = csv.writer(csvfile)
-    labels = ['Number','date','url','pdf']
-    file.writerow(labels)
-    for row in data:
-        file.writerow(row)
-    csvfile.close()
-    return
-
-    file.close()
-
-    return
+        return

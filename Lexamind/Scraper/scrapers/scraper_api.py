@@ -24,6 +24,7 @@ class Bill( object):
         self.lawnames=[]
         self.events=[]
         self.details=''
+        self.hyperlink=''
 
     def addEvent(self, stage, date, activity, committee):
         event={'stage':'0', 'date':'0', 'activity':'0', 'committee':'0'}
@@ -35,6 +36,9 @@ class Bill( object):
 
     def setDetails(self, details):
         self.details=details
+
+    def setHyperlink(self, url):
+        self.hyperlink=url
 
     def addLaw(self, law):
         #print(law)
@@ -63,6 +67,8 @@ class Scraper( object ):
 
     """legislature="NONE"
     bills=[]"""
+
+    dateFormat="%Y-%m-%d"
 
     def __init__(self):
         self.bills=[]

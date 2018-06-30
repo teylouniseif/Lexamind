@@ -10,6 +10,7 @@ from scrapers.alberta_scraper import Alberta
 from scrapers.assnat_scraper import Quebec
 from scrapers.federal_scraper import Canada
 from scrapers.newfoundland_scraper import Newfoundland
+from scrapers.newfoundland_scraper import GazetteQuebec
 from account_manager.team import Team, User
 from account_manager.displayer import Information
 from account_manager.emailer import Email
@@ -21,9 +22,9 @@ import jsonpickle
 
 """y=Canada()
 y.retrieve_bills()
-y.store_bills()"""
+y.store_bills()
 
-"""y=Ontario()
+y=Ontario()
 y.retrieve_bills()
 y.store_bills()
 y=Quebec()
@@ -47,7 +48,7 @@ x.addLaw("Builders' Lien Act (Alb.)")
 x.addLaw("Builders' Lien Act (C-B)")
 x.addLaw("Builders' Lien Act (Man.)")
 x.addLaw("Mechanics' Lien Act (N-B)")
-x.addLaw("Construction Lien Act (Ont.)")
+x.addLaw("Construction Lien Act (Ontario)")
 x.addLaw("The Builders' Lien Act (Sask.)")
 x.addLaw("Mechanics' Lien Act (T-N-L)")
 x.addLaw("Mechanics Lien Act (Nt)")
@@ -59,7 +60,7 @@ x.addLaw("Land Title and Survey Authority Act (C-B)")
 x.addLaw("Land Registration Act (N-E)")
 x.addLaw("Registry Act (N-E)")
 x.addLaw("Registry Act (I-P-E)")
-x.addLaw("Registry Act (Ont)")
+x.addLaw("Registry Act (Ontario)")
 x.addLaw("Registry Act (N-B)")
 x.addLaw("Registry Act (Man.)")
 x.addLaw("Land Titles Act (Alb.)")
@@ -70,7 +71,7 @@ x.addLaw("Personal Property Security Act (Alb.)")
 x.addLaw("Personal Property Security Act (C-B)")
 x.addLaw("Personal Property Security Act (Man.)")
 x.addLaw("Personal Property Security Act (N-E)")
-x.addLaw("Personal Property Security Act (Ont.)")
+x.addLaw("Personal Property Security Act (Ontario)")
 x.addLaw("Personal Property Security Act (N-B)")
 x.addLaw("Personal Property Security Act (I-P-E)")
 x.addLaw("Personal Property Security Act (Sask.)")
@@ -84,9 +85,9 @@ x.addLaw("New Home Buyer Protection Act (Alb.)")
 x.addLaw("Loi sur la faillite et l'insolvabilité (Canada)")
 x.addLaw("Loi sur le recyclage des produits de la criminalité et le financement des activités terroristes (CAN)")
 x.addLaw("B-8 - Mécanismes de dissuasion et de détection du recyclage des produits de la criminalité et du financement des activités terroristes (BSIF – CAN)")
-"""x.addLaw("police act")
+"""x.addLaw("police act (Alberta)")
 x.addLaw("charte de la ville de montréal")
-x.addLaw("la loi de 1991 sur les audiologistes")
+x.addLaw("la loi de 1991 sur les audiologistes (Ontario)")
 x.addLaw("loi sur la sûreté des déplacements aériens")
 x.addLaw("loi sur la protection des renseignements personnels dans le secteur privé")"""
 

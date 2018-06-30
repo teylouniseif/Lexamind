@@ -11,6 +11,7 @@ from PyPDF2 import PdfFileReader
 import feedparser
 import os, re
 import operator
+from datetime import datetime
 testing = True
 
 temp_pdf = "temp.pdf"
@@ -93,10 +94,18 @@ class Quebec( Scraper ):
 
             stages=details[0]
             dates=details[1]
-            for stage, date in zip(stages, dates):
+            urls=details[2]
+            billurl=""
+            for stage, date, url in zip(stages, dates, urls):
+                if url !="N/A":
+                    print(url)
+                    billurl=url
                 bill_info.addEvent(stage, date, None, None)
 
             bill_info.setDetails(text)
+            print(billurl)
+            bill_info.setHyperlink(billurl)
+            print(bill_info.hyperlink+"hey")
             self.scrapeLawsinBill(bill_info)
 
             other = Quebec.filter_values(details) # All the other details
@@ -295,7 +304,6 @@ class Quebec( Scraper ):
 
         # Finding the date
         letter = date[0]
-        print(letter)
         i = 1
         while not letter.isdigit() and i < len(date):
             letter = date[i]
@@ -430,4 +438,5 @@ class Quebec( Scraper ):
 
                         law=""
         except StopIteration:
-            print("this is the end")
+            pass
+            #print("this is the end")
