@@ -10,7 +10,7 @@ import requests
 from urllib.request import Request, urlopen
 from PyPDF2 import PdfFileReader
 from io import BytesIO
-import os
+import os, re
 import csv
 
 encrypted_file = "encr.pdf"
@@ -26,6 +26,9 @@ for each law of interest, any sort of action that is tied to it, reglement, decr
 from .scraper_api import Scraper, Bill
 
 class GazetteQuebec( Scraper ):
+
+    rgx_modified_title = 'Règlement modifiant'
+    law_delimiter_str="\n\n"
 
     RELEVANCYSTRING=r"(^loi(s)?|^règlement(s)?)\s+(modifié(e)(s)?|remplacé(e)(s)?|abrogé(e)(s)?).*"
     MOFIFIEDLAWSTRINGSTART=r"œ.*"#"(loi|code|règlement|charte).*"
@@ -64,7 +67,7 @@ class GazetteQuebec( Scraper ):
     def retrieve_bills(self, start_year = 2018):
         # This url is very long because the original url kept redirecting to the main page
         url = "http://www2.publicationsduquebec.gouv.qc.ca/gazette_officielle/partie_2f-liste.php"
-        soup = Make_Soup(url)
+        soup = GazetteQuebec.Make_Soup(url)
 
         # False when there was an error connecting
         if soup == False:
@@ -89,7 +92,7 @@ class GazetteQuebec( Scraper ):
 
     # Scrape all pdfs corresponding to a certain year
     def Find_Year_Data(self, url, year):
-        soup = Make_Soup(url)
+        soup = GazetteQuebec.Make_Soup(url)
 
         # False when there was an error connecting
         if soup == False:
@@ -110,6 +113,12 @@ class GazetteQuebec( Scraper ):
             gazette = els[0].text
             date = gazette.split('No. ')[0]
             number = gazette.split('No. ')[1]
+
+            #print(gazette)
+            if number!="27":
+                continue
+
+
             print("Scraping pdf number: " + number)
             # get the last element of the table
             pdf_url = els[len(els)-1].find('a')['href']
@@ -120,6 +129,7 @@ class GazetteQuebec( Scraper ):
             bill_info.addEvent("Publication", date, None, None)
             bill_info.setDetails(text)
             bill_info.setHyperlink(pdf_url)
+            print(bytes(text, "UTF-8"))
             print(bill_info.hyperlink+"hey")
             self.scrapeLawsinBill(bill_info)
             databill.append(bill_info)
@@ -128,17 +138,19 @@ class GazetteQuebec( Scraper ):
         return data
 
     def scrapeLawsinBill(self, bill):
-        modification = re.findall(Ontario.rgx_modified_title, bill.details)
+        modification = re.split(GazetteQuebec.rgx_modified_title, bill.details)
         if modification==None:
             return
         else:
+            #print(modification)
             for match in modification:
-                modifiedstripped=match.split('modifiant')[1]
-                modifiedLaws = re.split(Ontario.law_delimiter_str, modifiedstripped)
-                for modifiedLaw in modifiedLaws:
-                    if modifiedLaw.find('Loi')!=-1 or modifiedLaw.find('Code')!=-1:
-                        #print(modifiedLaw+"noni")
-                        bill.addLaw(modifiedLaw)
+                modifiedLaws = match.split(GazetteQuebec.law_delimiter_str)[0]
+                #print(modifiedLaws+"\n")
+        """for
+         in modifiedLaws:
+            if modifiedLaw.find('Loi')!=-1 or modifiedLaw.find('Code')!=-1:
+                #print(modifiedLaw+"noni")
+                bill.addLaw(modifiedLaw)"""
 
     # Downloads the pdf and extracts the text
     def Extract_Pdf(url):

@@ -30,6 +30,11 @@ class User( object):
         print(sanitizedlaw)
         self.lawnames.append(sanitizedlaw)
 
+    def LawNamefromOfficaltoBill(self, law):
+        billlawname=law.split(",")[0]+" ("+law.split("(")[1].split(")")[0].lower()+")"
+        print(billlawname)
+        return billlawname
+
 class Team( object ):
 
     """teamname="NONE"
