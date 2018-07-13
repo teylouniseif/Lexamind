@@ -167,28 +167,21 @@ class GazetteQuebec( Scraper ):
         onlineFile = urlopen(Request(url)).read()
         pdfFile = PdfFileReader(BytesIO(onlineFile))
 
-        if pdfFile.isEncrypted:
-            fp, pdfFile = GazetteQuebec.decrypt_pdf(url)
-            fp.close()
-            
-            # Convert pdf to text
-            os.system("pdftotext " + decrypted_file + " " + text_file)
-            
-            with open(text_file, encoding="utf8") as fl:
-                for line in fl:
-                    data += line
-                fl.close()
-            
-            # delete the files so we can reuse them
-            os.system("del " + encrypted_file)
-            os.system("del " + decrypted_file)
-
-        else:
-            for pageNum in range(pdfFile.getNumPages()):
-                currentPage = pdfFile.getPage(pageNum)
-                data += currentPage.extractText()
-            
-            os.system("del " + text_file)
+        fp, pdfFile = GazetteQuebec.decrypt_pdf(url)
+        fp.close()
+        
+        # Convert pdf to text
+        os.system("pdftotext " + decrypted_file + " " + text_file)
+        
+        with open(text_file, encoding="utf8") as fl:
+            for line in fl:
+                data += line
+            fl.close()
+        
+        # delete the files so we can reuse them
+        os.system("del " + encrypted_file)
+        os.system("del " + decrypted_file)
+        os.system("del " + text_file)
 
 
         return data
