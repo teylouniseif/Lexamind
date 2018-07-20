@@ -4,6 +4,13 @@ Created on Sat Mar  3 15:28:38 2018
 @author: Sacha Perry-Fagant
 """
 
+# Make sure we can access the resoures file
+import sys
+import os
+parentDir = os.getcwd().split('\\Scraper')[0]
+if parentDir not in sys.path:
+    sys.path.insert(0,parentDir)
+
 import urllib.request as urllib2
 from bs4 import BeautifulSoup
 import requests
@@ -16,6 +23,7 @@ import copy
 
 encrypted_file = "encr.pdf"
 decrypted_file = "decry.pdf"
+text_file = "text.txt"
 
 """
 info to get:
@@ -24,7 +32,7 @@ gazette date
 
 for each law of interest, any sort of action that is tied to it, reglement, decret, decisions
 """
-from .scraper_api import Scraper, Bill
+from scraper_api import Scraper, Bill
 
 class GazetteQuebec( Scraper ):
 
@@ -211,20 +219,22 @@ class GazetteQuebec( Scraper ):
         onlineFile = urlopen(Request(url)).read()
         pdfFile = PdfFileReader(BytesIO(onlineFile))
 
-        if pdfFile.isEncrypted:
-            fp, pdfFile = GazetteQuebec.decrypt_pdf(url)
-            for pageNum in range(pdfFile.getNumPages()):
-                currentPage = pdfFile.getPage(pageNum)
-                data += currentPage.extractText()
-            fp.close()
-            # delete the files so we can reuse them
-            os.system("del " + encrypted_file)
-            os.system("del " + decrypted_file)
+        fp, pdfFile = GazetteQuebec.decrypt_pdf(url)
+        fp.close()
+        
+        # Convert pdf to text
+        os.system("pdftotext " + decrypted_file + " " + text_file)
+        
+        with open(text_file, encoding="utf8") as fl:
+            for line in fl:
+                data += line
+            fl.close()
+        
+        # delete the files so we can reuse them
+        os.system("del " + encrypted_file)
+        os.system("del " + decrypted_file)
+        os.system("del " + text_file)
 
-        else:
-            for pageNum in range(pdfFile.getNumPages()):
-                currentPage = pdfFile.getPage(pageNum)
-                data += currentPage.extractText()
 
         return data
 
