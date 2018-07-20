@@ -34,6 +34,13 @@ def retrieveBillsByLegislature(legislature):
         bills.append(bill)
     return bills
 
+def deleteBill(bill):
+    record=Database.createDocumentfromField(bill, bill.identifier)
+    Database.deleteRecord(record, "Lexamind", "Bills", remote_database)
+
+def deleteBillsByLegislature(legislature):
+    Database.deleteAllRecordsBySubstringMatch( legislature, "Lexamind", "Bills",  remote_database)
+
 def storeUser(user):
     record=Database.createDocumentfromField(user, user.identifier)
     Database.addRecord(record, "Lexamind", "Users", remote_database)

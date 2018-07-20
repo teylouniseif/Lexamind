@@ -57,7 +57,10 @@ class Information( object ):
 
     def build_update(self, user, bill, cachedLaw):
         #build html src code
-        billno=bill.title.strip(bill.legislature)
+        if bill.legislature=="GazetteQuébec":
+            billno=bill.title.split("_")[0]
+        else:
+            billno=bill.title.strip(bill.legislature)
         if len(bill.events)!=0:
             stage=bill.events[-1]["stage"]
             date=bill.events[-1]["date"]

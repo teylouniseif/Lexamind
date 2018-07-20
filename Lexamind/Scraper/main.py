@@ -16,7 +16,7 @@ from account_manager.displayer import Information
 from account_manager.emailer import Email
 from scrapers.version_converter import call_python_version
 from storer.database import Database
-from storer.storer import retrieveLaw
+from storer.storer import retrieveLaw, deleteBillsByLegislature
 import json
 import jsonpickle
 
@@ -33,14 +33,16 @@ y.store_bills()
 y=Alberta()
 y.retrieve_bills()
 y.store_bills()"""
-
-
-y=GazetteQuebec()
+"""y=GazetteQuebec()
 y.retrieve_bills()
-y.store_bills()
+y.store_bills()"""
+#deleteBillsByLegislature("GazetteQuébec")
+
+
 
 x=User("dominique.payette@bnc.ca", "dominique.payette@bnc.ca", "billscraper")
 #x=User("lexamindcooperathon@gmail.com", "lexamindcooperathon@gmail.com", "billscraper")
+#x=User("gmorency@edilex.com", "gmorency@edilex.com", "edilex")
 x.addLaw("Loi sur le financement des petites entreprises du Canada, LC 1998, c 36 (Canada)")
 x.addLaw("Loi canadienne sur les sociétés par actions, LRC 1985, c C-44 (Canada)")
 x.addLaw("Loi sur la publicité légale des entreprises, RLRQ c P-44.1 (Québec)")
@@ -90,9 +92,10 @@ x.addLaw("Loi sur la faillite et l'insolvabilité, LRC 1985, c B-3 (Canada)")
 x.addLaw("Loi sur le recyclage des produits de la criminalité et le financement des activités terroristes, LC 2000, c 17 (Canada)")
 #x.addLaw("B-8 - Mécanismes de dissuasion et de détection du recyclage des produits de la criminalité et du financement des activités terroristes (BSIF – CAN)")
 
-"""x.addLaw("police act (Alberta)")
-x.addLaw("charte de la ville de montréal")
-x.addLaw("la loi de 1991 sur les audiologistes (Ontario)")
+#x.addLaw("Procédure de conciliation et d’arbitrage des comptes des sexologues ; Code des professions, (GazetteQuébec)")
+"""x.addLaw("police act, (Alberta)")
+x.addLaw("charte de la ville de montréal, (Québec)")
+x.addLaw("la loi de 1991 sur les audiologistes, (Ontario)")
 x.addLaw("loi sur la sûreté des déplacements aériens")
 x.addLaw("loi sur la protection des renseignements personnels dans le secteur privé")"""
 

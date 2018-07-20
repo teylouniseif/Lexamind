@@ -39,7 +39,7 @@ class Template(object):
               <table style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse;width: 100%;border-spacing: 0;padding: 0;vertical-align: top;text-align: left;\">\r\n
                 <tr class=\"column-titles\" style=\"padding: 0;vertical-align: top;text-align: left;font-family: 'Josefin Sans', sans-serif;\">\r\n
                   <th class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse;font-family: 'Tahoma', sans-serif;padding: 10px;\"><span style=\"background-color: rgba(255,242,0,1);\">Projet de loi</span></th>\r\n
-                  <th style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse;font-family: 'Tahoma', sans-serif;padding: 10px;\"><span style=\"background-color: rgba(255,242,0,1);\">Loi amendée</span></th> \r\n
+                  <th style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse;font-family: 'Tahoma', sans-serif;padding: 10px;\"><span style=\"background-color: rgba(255,242,0,1);\">Loi/Règlement amendé</span></th> \r\n
                   <th class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse;font-family: 'Tahoma', sans-serif;padding: 10px;\"><span style=\"background-color: rgba(255,242,0,1);\">Statut</span></th>\r\n
                   <th style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse;font-family: 'Tahoma', sans-serif;padding: 10px;\"><span style=\"background-color: rgba(255,242,0,1);\">Date</span></th>\r\n
                   <th class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse;font-family: 'Tahoma', sans-serif;padding: 10px;\"><span style=\"background-color: rgba(255,242,0,1);\">Législature</span></th>\r\n

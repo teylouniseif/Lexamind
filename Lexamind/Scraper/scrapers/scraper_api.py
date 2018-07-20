@@ -26,6 +26,10 @@ class Bill( object):
         self.details=''
         self.hyperlink=''
 
+    def changeTitle(self, identifier, title):
+        self.title=title
+        self.identifier=identifier
+
     def addEvent(self, stage, date, activity, committee):
         event={'stage':'0', 'date':'0', 'activity':'0', 'committee':'0'}
         event['stage']=stage

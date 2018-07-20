@@ -12,6 +12,7 @@ from PyPDF2 import PdfFileReader
 from io import BytesIO
 import os, re
 import csv
+import copy
 
 encrypted_file = "encr.pdf"
 decrypted_file = "decry.pdf"
@@ -92,6 +93,7 @@ class GazetteQuebec( Scraper ):
 
     # Scrape all pdfs corresponding to a certain year
     def Find_Year_Data(self, url, year):
+        print(url)
         soup = GazetteQuebec.Make_Soup(url)
 
         # False when there was an error connecting
@@ -115,42 +117,92 @@ class GazetteQuebec( Scraper ):
             number = gazette.split('No. ')[1]
 
             #print(gazette)
-            if number!="27":
-                continue
+            #if number!="28":
+                #continue
 
 
             print("Scraping pdf number: " + number)
             # get the last element of the table
             pdf_url = els[len(els)-1].find('a')['href']
             # Storing the gazette number, date, the url and the pdf
+            print(els[0].find('a'))
+            index_url= "http"+els[0].find('a')['onclick'].split("http")[1].split("\"")[0]
+            #from index_url read every reglement title
+            print(index_url+"hello")
             text=GazetteQuebec.Extract_Pdf(pdf_url)
             data.append([number, date, pdf_url, text])
-            bill_info = Bill(self.legislature+number, self.legislature+number, self.legislature)
-            bill_info.addEvent("Publication", date, None, None)
-            bill_info.setDetails(text)
-            bill_info.setHyperlink(pdf_url)
-            print(bytes(text, "UTF-8"))
-            print(bill_info.hyperlink+"hey")
-            self.scrapeLawsinBill(bill_info)
-            databill.append(bill_info)
+            #print(bytes(text, "UTF-8"))
+            #print(bill_info.hyperlink+"hey")
+            bill_info=self.scrapeRegulationsinGazette(date, number, index_url, pdf_url, text)
+            databill.extend(bill_info)
 
         self.bills=databill
         return data
 
-    def scrapeLawsinBill(self, bill):
-        modification = re.split(GazetteQuebec.rgx_modified_title, bill.details)
-        if modification==None:
-            return
-        else:
-            #print(modification)
-            for match in modification:
-                modifiedLaws = match.split(GazetteQuebec.law_delimiter_str)[0]
-                #print(modifiedLaws+"\n")
-        """for
-         in modifiedLaws:
-            if modifiedLaw.find('Loi')!=-1 or modifiedLaw.find('Code')!=-1:
-                #print(modifiedLaw+"noni")
-                bill.addLaw(modifiedLaw)"""
+    def scrapeRegulationsinGazette(self, date, number, index_url, pdf_url, text):
+        soup=GazetteQuebec.Make_Soup(index_url)
+        # False when there was an error connecting
+        if soup == False:
+            return []
+
+        bills=[]
+
+        bill_info = Bill(self.legislature+number+"_", self.legislature+number+"_", self.legislature)
+        bill_info.setDetails(text)
+        bill_info.setHyperlink(pdf_url)
+
+        section_projects = soup.find('h2')
+        print(section_projects.attrs)
+        while section_projects!=None and 'class' in section_projects.attrs and ('titreRubrique' not in section_projects.attrs['class'][0] or 'Projets de règlement' not in section_projects.text) :
+            print(section_projects.attrs['class'][0])
+
+            section_projects = section_projects.findNext('h2')
+
+        projects=[]
+        while section_projects!=None and section_projects.findNext('a', attrs={'href': re.compile(".*http.*")}) != None:
+            section_projects=section_projects.findNext('a', attrs={'href': re.compile(".*http.*")})
+            projects.append(section_projects)
+
+        section_regulations = soup.find('h2')
+        while section_regulations!=None and 'class' in section_regulations.attrs and ('titreRubrique' not in section_regulations.attrs['class'][0] or 'Règlements et autres actes' not in section_regulations.text) :
+            section_regulations = section_regulations.findNext('h2')
+
+        regulations=[]
+        while section_regulations!=None and section_regulations.findNext('a', attrs={'href': re.compile(".*http.*")}) != None:
+            section_regulations=section_regulations.findNext('a', attrs={'href': re.compile(".*http.*")})
+            regulations.append(section_regulations)
+
+        projects=[x for x in projects if x not in regulations]
+
+        for i in range(0 , len(projects)):
+            if len(projects[i].text.split("—"))>1:
+                bill=copy.deepcopy(bill_info)
+                bill.addEvent("Avis", date, None, None)
+                if len(projects[i].text.split("—")[0].split(","))>1:
+                    print(projects[i].text.split("—")[-1]+ projects[i].text.split("—")[0].split(",")[1].strip("…")+ projects[i].text.split("—")[0].split(",")[0])
+                    law=projects[i].text.split("—")[-1]+ " ; "+projects[i].text.split("—")[0].split(",")[1].strip("…")+ projects[i].text.split("—")[0].split(",")[0]
+                else:
+                    print(projects[i].text.split("—")[-1]+ " "+projects[i].text.split("—")[0])
+                    law=projects[i].text.split("—")[-1]+ " ; "+projects[i].text.split("—")[0]
+                bill.changeTitle(bill.identifier+law, bill.title+law)
+                bill.addLaw(law)
+                bills.append(bill)
+
+        for i in range(0 , len(regulations)):
+            if len(regulations[i].text.split("—"))>1:
+                bill=copy.deepcopy(bill_info)
+                bill.addEvent("Adoption", date, None, None)
+                if len(regulations[i].text.split("—")[0].split(","))>1:
+                    print(regulations[i].text.split("—")[-1]+ regulations[i].text.split("—")[0].split(",")[1].strip("…")+ regulations[i].text.split("—")[0].split(",")[0])
+                    law=regulations[i].text.split("—")[-1]+ " ; "+regulations[i].text.split("—")[0].split(",")[1].strip("…")+ regulations[i].text.split("—")[0].split(",")[0]
+                else:
+                    print(regulations[i].text.split("—")[-1]+ regulations[i].text.split("—")[0])
+                    law=regulations[i].text.split("—")[-1]+ " ; "+regulations[i].text.split("—")[0]
+                bill.changeTitle(bill.identifier+law, bill.title+law)
+                bill.addLaw(law)
+                bills.append(bill)
+
+        return bills
 
     # Downloads the pdf and extracts the text
     def Extract_Pdf(url):
@@ -211,3 +263,12 @@ class GazetteQuebec( Scraper ):
         file.close()
 
         return
+
+    def find_all_sections_with_attr_within_elem(attr, elem, startsection):
+        sections=[]
+        unfileredsections = startsection.findAll(elem, attrs={attr: re.compile("para$")})
+        print(unfileredsections)
+        for i in range(0, len(unfileredsections)):
+            if attr in unfileredsections[i].attrs.keys():
+                sections.append(unfileredsections[i])
+        return sections
