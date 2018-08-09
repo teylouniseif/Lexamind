@@ -35,11 +35,11 @@ class Quebec( Scraper ):
         try:
             response = requests.get(url)
         except:
-            print("There was an issue connecting to the internet")
+            dummyvar=1#print("There was an issue connecting to the internet")
             exit()
 
         if response.status_code != 200:
-            print("There was an error finding the page")
+            dummyvar=1#print("There was an error finding the page")
             return False
 
         page = urllib2.urlopen(url)
@@ -52,7 +52,7 @@ class Quebec( Scraper ):
             fr_err = "La page ne peut être affichée"
             en_err = "Page cannot be displayed"
             if en_err in title.text or fr_err in title.text:
-                print("Nonexistant bill")
+                dummyvar=1#print("Nonexistant bill")
                 return False
 
         return soup
@@ -85,7 +85,7 @@ class Quebec( Scraper ):
             title = link.text.split(" (PDF")[0] # So we don't get the information about the PDF
             bill_info = Bill(self.legislature+str(number), title, self.legislature)
             #if bill_info.identifier!="Québec99":
-            #    print(bill_info.identifier)
+            #    dummyvar=1#print(bill_info.identifier)
             #    continue
 
             link = link.findNext('a')
@@ -98,14 +98,14 @@ class Quebec( Scraper ):
             billurl=""
             for stage, date, url in zip(stages, dates, urls):
                 if url !="N/A":
-                    print(url)
+                    dummyvar=1#print(url)
                     billurl=url
                 bill_info.addEvent(stage, date, None, None)
 
             bill_info.setDetails(text)
-            print(billurl)
+            dummyvar=1#print(billurl)
             bill_info.setHyperlink(billurl)
-            print(bill_info.hyperlink+"hey")
+            dummyvar=1#print(bill_info.hyperlink+"hey")
             self.scrapeLawsinBill(bill_info)
 
             other = Quebec.filter_values(details) # All the other details
@@ -392,7 +392,7 @@ class Quebec( Scraper ):
                 #strg=lawstrings[index]
                 strg=next(it)
 
-                #print(strg)
+                dummyvar=1#print(strg)
 
                 if strg.isdigit() or strg.strip()=='':
                     continue
@@ -405,7 +405,7 @@ class Quebec( Scraper ):
                     index+=1
                     #strg=lawstrings[index]
                     strg=next(it)
-                    #print(strg)
+                    dummyvar=1#print(strg)
                     while re.compile(Quebec.MOFIFIEDLAWSTRINGSTART).search(strg)!=None:
                         #at this point check that law affected is one that we are interested in
                         law+=strg
@@ -422,12 +422,12 @@ class Quebec( Scraper ):
                         #strg=lawstrings[index]
                         strg=next(it)
 
-                        #print(law)
+                        dummyvar=1#print(law)
                         bill.addLaw(re.compile(r".*œ\s|\s\(|;|\.").split(law)[1])
 
                         while strg.isdigit() or strg.strip()=='':
                             index+=1
-                            #print(strg)
+                            dummyvar=1#print(strg)
                             #strg=lawstrings[index]
                             strg=next(it)
 
@@ -439,4 +439,4 @@ class Quebec( Scraper ):
                         law=""
         except StopIteration:
             pass
-            #print("this is the end")
+            dummyvar=1#print("this is the end")

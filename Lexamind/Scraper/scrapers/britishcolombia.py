@@ -36,6 +36,6 @@ for bill_url in BILLS_URLS:
                'second_reading': second_reading, 'third_reading': third_reading, 'committee': committee,
                'report': report, 'amended': amended, 'royal_assent': royal_assent, 'chap': chap}
         collection.insert_one(doc)
-        print("Added bill number {} to MongoDB".format(bill_no))
+        dummyvar=1#print("Added bill number {} to MongoDB".format(bill_no))
 
-print("Data saved to bills-collection in bills-db")
+dummyvar=1#print("Data saved to bills-collection in bills-db")

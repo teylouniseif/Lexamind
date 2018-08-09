@@ -65,7 +65,7 @@ def retrieveUsersByTeam(team):
     return users
 
 def storeLaw(law):
-    #print(law.identifier)
+    dummyvar=1#print(law.identifier)
     record=Database.createDocumentfromField(law, law.identifier)
     Database.addRecord(record, "Lexamind", "Laws", remote_database)
     #Database.createSearchIndexfromRecord(law.identifier, "Lexamind", "Laws")
@@ -81,7 +81,7 @@ def retrieveLaw(id):
     return Database.returnObjfromDocument(encodedlaw)
 
 def updateLaw(law):
-    #print(law.identifier)
+    dummyvar=1#print(law.identifier)
     record=Database.createDocumentfromField(law, law.identifier)
     Database.updateRecord(record, "Lexamind", "Laws", remote_database)
 
@@ -131,7 +131,7 @@ def updateArchive(archive):
 def storeAccount(user):
     record={}
     record["_id"]=user.identifier
-    #print(user.lawnames)
+    dummyvar=1#print(user.lawnames)
     lawnames=[]
     for law in user.lawnames:
         lawnames.append(law.split("(")[1].split(")")[0]+" - "+law.split("(")[0])
@@ -150,7 +150,7 @@ def retrieveAllAccounts():
         return None
     accs=[]
     for account in accounts:
-        print(account)
+        dummyvar=1#print(account)
         acc={'username':account['_id'],'lawnames':account['laws'], 'password':account['password']}
         accs.append(acc)
     return accs

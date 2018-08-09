@@ -26,11 +26,11 @@ class Newfoundland( Scraper ):
         try:
             response = requests.get(url)
         except:
-            print("There was an issue connecting to the internet")
+            dummyvar=1#print("There was an issue connecting to the internet")
             return False
 
         if response.status_code != 200:
-            print("There was an error finding the page")
+            dummyvar=1#print("There was an error finding the page")
             return False
 
         return True
@@ -218,7 +218,7 @@ class Newfoundland( Scraper ):
                         modifiedstripped2=modifiedstripped.split('Act')[0]
                         modifiedstripped3=modifiedstripped2.split('the')
                         modifiedstripped4=modifiedstripped3[len(modifiedstripped3)-1]
-                        print(modifiedstripped4+'Act'+bill.identifier)
+                        dummyvar=1#print(modifiedstripped4+'Act'+bill.identifier)
                         bill.addLaw(modifiedstripped4+'Act')"""
         modification = re.findall(Newfoundland.rgx_modified_title, bill.details)
         if modification==None:
@@ -238,7 +238,7 @@ class Newfoundland( Scraper ):
                         modifiedstripped2=modifiedstripped.split('Act')[0]
                         modifiedstripped3=modifiedstripped2.split('the')
                         modifiedstripped4=modifiedstripped3[len(modifiedstripped3)-1]
-                        print(modifiedstripped4+'Act'+ bill.identifier)
+                        dummyvar=1#print(modifiedstripped4+'Act'+ bill.identifier)
                         bill.addLaw(modifiedstripped4+'Act')
                 previousmatch=match
 
@@ -253,4 +253,4 @@ class Newfoundland( Scraper ):
             except:
                 formatteddate=datetime.strptime(datestripped, '%b %d/%Y').strftime('%d/%m/%Y')
                 event['date']=formatteddate
-            print(formatteddate)
+            dummyvar=1#print(formatteddate)

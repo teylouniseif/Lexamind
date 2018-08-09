@@ -27,12 +27,12 @@ class User( object):
     def addLaw(self, law):
         #sanitizedlaw=law.lower().split("(")[0].strip()
         sanitizedlaw=law.lower().strip()
-        print(sanitizedlaw)
+        dummyvar=1#print(sanitizedlaw)
         self.lawnames.append(sanitizedlaw)
 
     def LawNamefromOfficaltoBill(self, law):
         billlawname=law.split(",")[0]+" ("+law.split("(")[1].split(")")[0].lower()+")"
-        print(billlawname)
+        dummyvar=1#print(billlawname)
         return billlawname
 
 class Team( object ):
@@ -48,7 +48,7 @@ class Team( object ):
         self.users=retrieveUsersByTeam(self.teamname)
         for user in self.users:
             for law in user.lawnames:
-                print("this is it: "+law)
+                dummyvar=1#print("this is it: "+law)
 
     def load_users_from_accounts(self):
         accounts=retrieveAllAccounts()
@@ -61,7 +61,7 @@ class Team( object ):
             self.users.append(user)
         for user in self.users:
             for law in user.lawnames:
-                print("this is it: "+account['username']+law)
+                dummyvar=1#print("this is it: "+account['username']+law)
 
     def store_users(self):
         for user in self.users:

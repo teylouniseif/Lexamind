@@ -32,17 +32,17 @@ class Alberta( Scraper ):
         try:
             response = requests.get(url)
         except:
-            print("There was an issue connecting to the internet")
+            dummyvar=1#print("There was an issue connecting to the internet")
             exit()
 
         if response.status_code != 200:
-            print("There was an error finding the page")
+            dummyvar=1#print("There was an error finding the page")
             return False
 
         # If you try to go to a bill url that doesn't exist
         # You are sent back to the main page
         if "bills_home" in requests.post(url).url:
-            print("Nonexistant bill")
+            dummyvar=1#print("Nonexistant bill")
             return False
 
         page = urllib2.urlopen(url)
@@ -237,20 +237,20 @@ class Alberta( Scraper ):
 
     def scrapeLawsinBill(self, bill):
         modification = re.findall(Alberta.rgx_modified_title, bill.details)
-        #print(bill.details)
+        dummyvar=1#print(bill.details)
         if modification==None:
             return
         else:
             previousmatch=None
             for match in modification:
-                #print(match)
+                dummyvar=1#print(match)
                 modifiedstripped=re.search('.*amended.*', match)
                 if modifiedstripped==None:
                     continue
                 else:
                     """modifiedstripped=modifiedstripped.split('The')
                     modifiedstripped=modifiedstripped[len(modifiedstripped)-1]
-                    print(modifiedstripped)
+                    dummyvar=1#print(modifiedstripped)
                     if modifiedstripped.find('the Act')==-1 and modifiedstripped.find('this Act')==-1:
                         bill.addLaw("the"+modifiedstripped+'Act')"""
                     modifiedstripped=match.split('amended')[0]
@@ -260,7 +260,7 @@ class Alberta( Scraper ):
                         modifiedstripped2=modifiedstripped.split('Act')[0]
                         modifiedstripped3=modifiedstripped2.split('the')
                         modifiedstripped4=modifiedstripped3[len(modifiedstripped3)-1]
-                        print(modifiedstripped4+'Act'+ bill.identifier)
+                        dummyvar=1#print(modifiedstripped4+'Act'+ bill.identifier)
                         bill.addLaw(modifiedstripped4+'Act')
                 previousmatch=match
             """for match in modification:
@@ -270,7 +270,7 @@ class Alberta( Scraper ):
                         modifiedstripped2=modifiedstripped.split('Act')[0]
                         modifiedstripped3=modifiedstripped2.split('the')
                         modifiedstripped4=modifiedstripped3[len(modifiedstripped3)-1]
-                        print(modifiedstripped4+'Act'+ bill.identifier)
+                        dummyvar=1#print(modifiedstripped4+'Act'+ bill.identifier)
                         bill.addLaw(modifiedstripped4+'Act')"""
 
     def sanitizeEventsDate(bill):
@@ -280,7 +280,7 @@ class Alberta( Scraper ):
                 datestripped= event['date'].split(datedelimiter)[0].strip()
             else:
                 datestripped= event['date'].strip()
-            print(datedelimiter)
+            dummyvar=1#print(datedelimiter)
             try:
                 formatteddate=datetime.strptime(datestripped, '%b. %d, %Y').strftime('%Y-%m-%d')
                 event['date']=formatteddate

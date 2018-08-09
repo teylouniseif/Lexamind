@@ -4,13 +4,6 @@ Created on Sat Mar  3 15:28:38 2018
 @author: Sacha Perry-Fagant
 """
 
-# Make sure we can access the resoures file
-import sys
-import os
-parentDir = os.getcwd().split('\\Scraper')[0]
-if parentDir not in sys.path:
-    sys.path.insert(0,parentDir)
-
 import urllib.request as urllib2
 from bs4 import BeautifulSoup
 import requests
@@ -23,7 +16,6 @@ import copy
 
 encrypted_file = "encr.pdf"
 decrypted_file = "decry.pdf"
-text_file = "text.txt"
 
 """
 info to get:
@@ -32,7 +24,7 @@ gazette date
 
 for each law of interest, any sort of action that is tied to it, reglement, decret, decisions
 """
-from scraper_api import Scraper, Bill
+from .scraper_api import Scraper, Bill
 
 class GazetteQuebec( Scraper ):
 
@@ -56,10 +48,10 @@ class GazetteQuebec( Scraper ):
         try:
             response = requests.get(url)
             if response.status_code != 200:
-                print("There was an error finding the page")
+                dummyvar=1#print("There was an error finding the page")
                 return False
         except:
-            print("There was an issue connecting to the internet")
+            dummyvar=1#print("There was an issue connecting to the internet")
             exit()
 
         page = urllib2.urlopen(url)
@@ -92,7 +84,7 @@ class GazetteQuebec( Scraper ):
                 year = year_url.split("gazette=")[1]
                 if int(year) < start_year:
                     break
-                print("Now scraping: " + year)
+                dummyvar=1#print("Now scraping: " + year)
                 data += self.Find_Year_Data(year_url, year)
 
         GazetteQuebec.Convert_To_Csv(data)
@@ -101,7 +93,7 @@ class GazetteQuebec( Scraper ):
 
     # Scrape all pdfs corresponding to a certain year
     def Find_Year_Data(self, url, year):
-        print(url)
+        dummyvar=1#print(url)
         soup = GazetteQuebec.Make_Soup(url)
 
         # False when there was an error connecting
@@ -124,23 +116,23 @@ class GazetteQuebec( Scraper ):
             date = gazette.split('No. ')[0]
             number = gazette.split('No. ')[1]
 
-            #print(gazette)
+            dummyvar=1#print(gazette)
             #if number!="28":
                 #continue
 
 
-            print("Scraping pdf number: " + number)
+            dummyvar=1#print("Scraping pdf number: " + number)
             # get the last element of the table
             pdf_url = els[len(els)-1].find('a')['href']
             # Storing the gazette number, date, the url and the pdf
-            print(els[0].find('a'))
+            dummyvar=1#print(els[0].find('a'))
             index_url= "http"+els[0].find('a')['onclick'].split("http")[1].split("\"")[0]
             #from index_url read every reglement title
-            print(index_url+"hello")
+            dummyvar=1#print(index_url+"hello")
             text=GazetteQuebec.Extract_Pdf(pdf_url)
             data.append([number, date, pdf_url, text])
-            #print(bytes(text, "UTF-8"))
-            #print(bill_info.hyperlink+"hey")
+            dummyvar=1#print(bytes(text, "UTF-8"))
+            dummyvar=1#print(bill_info.hyperlink+"hey")
             bill_info=self.scrapeRegulationsinGazette(date, number, index_url, pdf_url, text)
             databill.extend(bill_info)
 
@@ -160,9 +152,9 @@ class GazetteQuebec( Scraper ):
         bill_info.setHyperlink(pdf_url)
 
         section_projects = soup.find('h2')
-        print(section_projects.attrs)
+        dummyvar=1#print(section_projects.attrs)
         while section_projects!=None and 'class' in section_projects.attrs and ('titreRubrique' not in section_projects.attrs['class'][0] or 'Projets de règlement' not in section_projects.text) :
-            print(section_projects.attrs['class'][0])
+            dummyvar=1#print(section_projects.attrs['class'][0])
 
             section_projects = section_projects.findNext('h2')
 
@@ -187,10 +179,10 @@ class GazetteQuebec( Scraper ):
                 bill=copy.deepcopy(bill_info)
                 bill.addEvent("Avis", date, None, None)
                 if len(projects[i].text.split("—")[0].split(","))>1:
-                    print(projects[i].text.split("—")[-1]+ projects[i].text.split("—")[0].split(",")[1].strip("…")+ projects[i].text.split("—")[0].split(",")[0])
+                    dummyvar=1#print(projects[i].text.split("—")[-1]+ projects[i].text.split("—")[0].split(",")[1].strip("…")+ projects[i].text.split("—")[0].split(",")[0])
                     law=projects[i].text.split("—")[-1]+ " ; "+projects[i].text.split("—")[0].split(",")[1].strip("…")+ projects[i].text.split("—")[0].split(",")[0]
                 else:
-                    print(projects[i].text.split("—")[-1]+ " "+projects[i].text.split("—")[0])
+                    dummyvar=1#print(projects[i].text.split("—")[-1]+ " "+projects[i].text.split("—")[0])
                     law=projects[i].text.split("—")[-1]+ " ; "+projects[i].text.split("—")[0]
                 bill.changeTitle(bill.identifier+law, bill.title+law)
                 bill.addLaw(law)
@@ -201,10 +193,10 @@ class GazetteQuebec( Scraper ):
                 bill=copy.deepcopy(bill_info)
                 bill.addEvent("Adoption", date, None, None)
                 if len(regulations[i].text.split("—")[0].split(","))>1:
-                    print(regulations[i].text.split("—")[-1]+ regulations[i].text.split("—")[0].split(",")[1].strip("…")+ regulations[i].text.split("—")[0].split(",")[0])
+                    dummyvar=1#print(regulations[i].text.split("—")[-1]+ regulations[i].text.split("—")[0].split(",")[1].strip("…")+ regulations[i].text.split("—")[0].split(",")[0])
                     law=regulations[i].text.split("—")[-1]+ " ; "+regulations[i].text.split("—")[0].split(",")[1].strip("…")+ regulations[i].text.split("—")[0].split(",")[0]
                 else:
-                    print(regulations[i].text.split("—")[-1]+ regulations[i].text.split("—")[0])
+                    dummyvar=1#print(regulations[i].text.split("—")[-1]+ regulations[i].text.split("—")[0])
                     law=regulations[i].text.split("—")[-1]+ " ; "+regulations[i].text.split("—")[0]
                 bill.changeTitle(bill.identifier+law, bill.title+law)
                 bill.addLaw(law)
@@ -219,22 +211,20 @@ class GazetteQuebec( Scraper ):
         onlineFile = urlopen(Request(url)).read()
         pdfFile = PdfFileReader(BytesIO(onlineFile))
 
-        fp, pdfFile = GazetteQuebec.decrypt_pdf(url)
-        fp.close()
-        
-        # Convert pdf to text
-        os.system("pdftotext " + decrypted_file + " " + text_file)
-        
-        with open(text_file, encoding="utf8") as fl:
-            for line in fl:
-                data += line
-            fl.close()
-        
-        # delete the files so we can reuse them
-        os.system("del " + encrypted_file)
-        os.system("del " + decrypted_file)
-        os.system("del " + text_file)
+        if pdfFile.isEncrypted:
+            fp, pdfFile = GazetteQuebec.decrypt_pdf(url)
+            for pageNum in range(pdfFile.getNumPages()):
+                currentPage = pdfFile.getPage(pageNum)
+                data += currentPage.extractText()
+            fp.close()
+            # delete the files so we can reuse them
+            os.system("del " + encrypted_file)
+            os.system("del " + decrypted_file)
 
+        else:
+            for pageNum in range(pdfFile.getNumPages()):
+                currentPage = pdfFile.getPage(pageNum)
+                data += currentPage.extractText()
 
         return data
 
@@ -247,7 +237,7 @@ class GazetteQuebec( Scraper ):
 
         result = os.system(command)
         if result == 1:
-            print("Failure at " + url)
+            dummyvar=1#print("Failure at " + url)
         fp = open(decrypted_file,'rb')
         pdfFile = PdfFileReader(fp)
         return fp, pdfFile
@@ -277,7 +267,7 @@ class GazetteQuebec( Scraper ):
     def find_all_sections_with_attr_within_elem(attr, elem, startsection):
         sections=[]
         unfileredsections = startsection.findAll(elem, attrs={attr: re.compile("para$")})
-        print(unfileredsections)
+        dummyvar=1#print(unfileredsections)
         for i in range(0, len(unfileredsections)):
             if attr in unfileredsections[i].attrs.keys():
                 sections.append(unfileredsections[i])

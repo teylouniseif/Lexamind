@@ -44,11 +44,11 @@ class Ontario( Scraper ):
         try:
             response = requests.get(url)
         except:
-            print("There was an issue connecting to the internet")
+            dummyvar=1#print("There was an issue connecting to the internet")
             return
 
         if response.status_code != 200:
-            print("There was an error finding the first page")
+            dummyvar=1#print("There was an error finding the first page")
             return
 
         page = urllib2.urlopen(url)
@@ -82,7 +82,7 @@ class Ontario( Scraper ):
                 bill_info['id'] = bill.text.strip()
 
                 if counter % 10 == 0:
-                    print("Currently at bill " + bill_info['id'])
+                    dummyvar=1#print("Currently at bill " + bill_info['id'])
                 counter += 1
 
                 # has the title and the url for the detailed data
@@ -115,7 +115,7 @@ class Ontario( Scraper ):
 
                 Ontario.sanitizeEventsDate(billInst)
 
-                #print(billInst.details)
+                dummyvar=1#print(billInst.details)
 
                 self.scrapeLawsinBill(billInst)
 
@@ -136,11 +136,11 @@ class Ontario( Scraper ):
         try:
             response = requests.get(url)
         except:
-            print("There was an issue connecting to the internet")
+            dummyvar=1#print("There was an issue connecting to the internet")
             return
 
         if response.status_code != 200:
-            print("There was an error finding the detailed page")
+            dummyvar=1#print("There was an error finding the detailed page")
             return
 
         page = urllib2.urlopen(url)
@@ -181,11 +181,11 @@ class Ontario( Scraper ):
         try:
             response = requests.get(url)
         except:
-            print("There was an issue connecting to the internet")
+            dummyvar=1#print("There was an issue connecting to the internet")
             return
 
         if response.status_code != 200:
-            print("There was an error finding the detailed page")
+            dummyvar=1#print("There was an error finding the detailed page")
             return
 
         page = urllib2.urlopen(url)
@@ -211,7 +211,7 @@ class Ontario( Scraper ):
             all_text = wordSection.find("h2", attrs = {'class' : "longtitle"})
             if all_text!=None:
                 for txt in all_text:
-                    #print(txt)
+                    dummyvar=1#print(txt)
                     text += txt.replace("\n", " ").replace("\r", " ")
 
             text += "\n"
@@ -228,18 +228,18 @@ class Ontario( Scraper ):
                 modifiedLaws = re.split(Ontario.law_delimiter_str, modifiedstripped)
                 for modifiedLaw in modifiedLaws:
                     if modifiedLaw.find('Loi')!=-1 or modifiedLaw.find('Code')!=-1:
-                        #print(modifiedLaw+"noni")
+                        dummyvar=1#print(modifiedLaw+"noni")
                         bill.addLaw(modifiedLaw)
 
 
     def sanitizeEventsDate(bill):
         #locale.setlocale(locale.LC_TIME, "fr-CA")
         for event in bill.events:
-            #print('noni'+event['date'])
+            dummyvar=1#print('noni'+event['date'])
             try:
                 formatteddate=datetime.strptime(event['date'].strip(), '%d/%m/%Y').strftime('%Y-%m-%d')
                 event['date']=formatteddate
-                #print('nonigood'+event['date'])
+                dummyvar=1#print('nonigood'+event['date'])
             except:
                 pass
         return

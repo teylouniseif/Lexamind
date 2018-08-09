@@ -153,13 +153,13 @@ class Canada(Scraper, Spider):
                 'scrapers.federal_scraper.CanPipeline': 1}
         })
         process.crawl(Canada)
-        print("hellononi")
+        dummyvar=1#print("hellononi")
         process.start()
         return
 
     def spider_closed(self, spider):
         self.bills=spider.bills
-        #print(self.bills)
+        dummyvar=1#print(self.bills)
         return
 
     def scrapeLawsinBill(self, bill):
@@ -168,18 +168,18 @@ class Canada(Scraper, Spider):
                 continue
             modifiedstripped=bill.details.split("Loi")[i]
             modifiedLaw = re.split(Canada.law_delimiter_str, modifiedstripped)[0]
-            #print("Loi"+modifiedLaw)
+            dummyvar=1#print("Loi"+modifiedLaw)
             bill.addLaw("Loi"+re.compile(r"\(|,|;|\.").split(modifiedLaw)[0])
         for i in range(len(bill.details.split("Code"))-1):
             if i==0:
                 continue
             modifiedstripped=bill.details.split("Code")[i]
             modifiedLaw = re.split(Canada.law_delimiter_str, modifiedstripped)[0]
-            #print("Code"+modifiedLaw)
+            dummyvar=1#print("Code"+modifiedLaw)
             bill.addLaw("Code"+re.compile(r"\(|,|;|\.").split(modifiedLaw)[0])
 
 class CanPipeline(object):
     def close_spider(self, spider):
         #for bill in spider.bills:
-        #    print(bill.identifier)
+        #    dummyvar=1#print(bill.identifier)
         return

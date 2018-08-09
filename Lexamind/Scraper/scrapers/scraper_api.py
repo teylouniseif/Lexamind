@@ -45,7 +45,7 @@ class Bill( object):
         self.hyperlink=url
 
     def addLaw(self, law):
-        #print(law)
+        dummyvar=1#print(law)
         sanitizedlaw=str(law.strip().lower()+" ("+self.legislature.lower()+")")#.encode('utf-8')
         self.lawnames.append(sanitizedlaw)
 
@@ -91,7 +91,7 @@ class Scraper( object ):
         self.bills=retrieveBillsByLegislature(self.legislature)
         for bill in self.bills:
             for law in bill.lawnames:
-                print(law)
+                dummyvar=1#print(law)
 
     def store_bills(self):
         for bill in self.bills:

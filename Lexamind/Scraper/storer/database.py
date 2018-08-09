@@ -32,7 +32,7 @@ class Database( object ):
 
     def addRecord( data, database, collection,  database_url="localhost:27017"):
         #page = open("test.json", 'r')
-        #print(json.dumps(data))
+        dummyvar=1#print(json.dumps(data))
         #col=Database.findCollection(database, collection, database_url)
         col=Database.findCollection(database, collection, database_url)
         #for item in parsed["Records"]:
@@ -42,10 +42,10 @@ class Database( object ):
         #db=client.admin
         # Issue the serverStatus command and print the results
         #serverStatusResult=db.command("serverStatus")
-        #pprint(serverStatusResult)
+        #pdummyvar=1#print(serverStatusResult)
 
     def deleteRecord( data, database, collection,  database_url="localhost:27017"):
-        print(json.dumps(data))
+        dummyvar=1#print(json.dumps(data))
         col=Database.findCollection(database, collection, database_url)
         col.delete_one({'_id':data["_id"]})
 
