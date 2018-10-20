@@ -112,8 +112,8 @@ class Alberta( Scraper ):
                     break
             bill_info = Bill(self.legislature+id+leg, info.text, self.legislature)
 
-            """billtitle=self.legislature+id+leg
-            if billtitle!="AlbertaPr729th Legislature, 1st Session (2015-2016)":
+            billtitle=self.legislature+id+leg
+            """if billtitle!="Alberta1829th Legislature, 4th Session (2018)":
                 info=info.findNextSibling('tr')
                 info=info.findNextSibling('tr')
                 continue"""
@@ -242,36 +242,21 @@ class Alberta( Scraper ):
             return
         else:
             previousmatch=None
+            modification=[x.strip() for x in modification if x.strip()]
             for match in modification:
                 dummyvar=1#print(match)
                 modifiedstripped=re.search('.*amended.*', match)
+                #print(modifiedstripped)
                 if modifiedstripped==None:
-                    continue
+                    previousmatch=match
                 else:
-                    """modifiedstripped=modifiedstripped.split('The')
-                    modifiedstripped=modifiedstripped[len(modifiedstripped)-1]
-                    dummyvar=1#print(modifiedstripped)
-                    if modifiedstripped.find('the Act')==-1 and modifiedstripped.find('this Act')==-1:
-                        bill.addLaw("the"+modifiedstripped+'Act')"""
-                    modifiedstripped=match.split('amended')[0]
-                    if modifiedstripped.find('Act')==-1 and previousmatch!=None:
-                        modifiedstripped=previousmatch
-                    if modifiedstripped.find('Act')!=-1 and modifiedstripped.find('the Act')==-1 and modifiedstripped.find('this Act')==-1:
-                        modifiedstripped2=modifiedstripped.split('Act')[0]
-                        modifiedstripped3=modifiedstripped2.split('the')
-                        modifiedstripped4=modifiedstripped3[len(modifiedstripped3)-1]
-                        dummyvar=1#print(modifiedstripped4+'Act'+ bill.identifier)
-                        bill.addLaw(modifiedstripped4+'Act')
-                previousmatch=match
-            """for match in modification:
-                modifiedstripped=match.split('amended')[0]
-                if modifiedstripped!=None and modifiedstripped.find('Act')!=-1 and modifiedstripped.find('Act')!=0:
-                    if modifiedstripped.find('the Act')==-1:
-                        modifiedstripped2=modifiedstripped.split('Act')[0]
-                        modifiedstripped3=modifiedstripped2.split('the')
-                        modifiedstripped4=modifiedstripped3[len(modifiedstripped3)-1]
-                        dummyvar=1#print(modifiedstripped4+'Act'+ bill.identifier)
-                        bill.addLaw(modifiedstripped4+'Act')"""
+                    if match.find('Act')==-1 and match.find('Code')==-1:
+                        if previousmatch.find('Act')!=-1 or previousmatch.find('Code')!=-1:
+                            bill.addLaw(previousmatch)
+                            print(previousmatch)
+                    else:
+                        bill.addLaw(match)
+                        print(match)
 
     def sanitizeEventsDate(bill):
         for event in bill.events:

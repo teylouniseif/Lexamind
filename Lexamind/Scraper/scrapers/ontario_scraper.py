@@ -24,8 +24,8 @@ from datetime import datetime
 
 class Ontario( Scraper ):
 
-    rgx_modified_title = '.*Loi modifiant.*'
-    law_delimiter_str="et|en ce|afin|à|pour|concernant"
+    rgx_modified_title = r"[^\r\n]*"#'.*is amended.*'
+    law_delimiter_str="the|The"
 
     def __init__(self):
         super(Scraper, self).__init__()
@@ -34,7 +34,7 @@ class Ontario( Scraper ):
     # If we want only the scrape the most recent bills
     # Set most_recent to True
     def retrieve_bills(self, most_recent = False, filename = None):
-        url = "https://www.ola.org/fr/affaires-legislatives/projets-loi/"
+        url = "https://www.ola.org/en/legislative-business/bills/"
         url_base = "https://www.ola.org"
 
         # Where all the data from the bills will be stored
@@ -55,12 +55,13 @@ class Ontario( Scraper ):
         soup = BeautifulSoup(page, "html.parser")
 
         soup = soup.find('table')
-        sessions = soup.findAll('tr')[1:]
+        sessionsstart = soup.findAll('tr')[1:]
 
         #if most_recent:
         #    sessions = [sessions[0]]
-        sessions = [sessions[0]]
-
+        sessions=[sessionsstart[0]]
+        sessions.append(sessionsstart[1])
+        sessions.append(sessionsstart[2])
 
         for session in sessions:
             row = session.find('td')
@@ -89,15 +90,19 @@ class Ontario( Scraper ):
                 title_url = bill.findNext('a')
 
                 # the id is bill73 for example
-                identifier = self.legislature + bill.text
+                identifier = self.legislature + bill.text.strip()
 
                 title = title_url.text.strip()
 
                 billInst = Bill(identifier, title, self.legislature)
 
+                #if billInst.identifier.strip()!="Ontario50":
+                #    print(billInst.identifier)
+                #    continue
+
                 bill_info['title'] = title
 
-                bill_info['sponsor'] = bill.findNext('td', attrs = {'headers': 'view-field-member-table-column'}).text.strip()
+                #bill_info['sponsor'] = bill.findNext('td', attrs = {'headers': 'view-field-member-table-column'}).text.strip()
 
                 bill_info['date'] = []
                 bill_info['stage'] = []
@@ -115,8 +120,7 @@ class Ontario( Scraper ):
 
                 Ontario.sanitizeEventsDate(billInst)
 
-                dummyvar=1#print(billInst.details)
-
+                #print(billInst.details)
                 self.scrapeLawsinBill(billInst)
 
                 data.append(billInst)
@@ -131,7 +135,7 @@ class Ontario( Scraper ):
         data = {}
 
         # get the details of events
-        url = url + '/etapes'
+        url = url + '/status'
 
         try:
             response = requests.get(url)
@@ -178,6 +182,7 @@ class Ontario( Scraper ):
 
     # Gets all the text from the detailed info page
     def Extract_Info_Ontario(url):
+        print(url)
         try:
             response = requests.get(url)
         except:
@@ -212,7 +217,8 @@ class Ontario( Scraper ):
             if all_text!=None:
                 for txt in all_text:
                     dummyvar=1#print(txt)
-                    text += txt.replace("\n", " ").replace("\r", " ")
+                    if isinstance(txt, str):
+                        text += txt.replace("\n", " ").replace("\r", " ")
 
             text += "\n"
             i += 1
@@ -220,16 +226,46 @@ class Ontario( Scraper ):
 
     def scrapeLawsinBill(self, bill):
         modification = re.findall(Ontario.rgx_modified_title, bill.details)
+        dummyvar=1#print(bill.details)
+        if modification==None:
+            return
+        else:
+            previousmatch=None
+            modification=[x.strip() for x in modification if x.strip()]
+            for match in modification:
+                dummyvar=1#print(match)
+                modifiedstripped=re.search('.*amended.*', match)
+                #print(modifiedstripped)
+                if modifiedstripped==None:
+                    previousmatch=match
+                else:
+                    if match.find('Act')==-1:
+                        if previousmatch.find('Act')!=-1:
+                            if len(previousmatch.split("Act")[0].split("the"))>1:
+                                bill.addLaw(previousmatch.split("Act")[0].split("the")[1].strip()+" Act")
+                                print(previousmatch.split("Act")[0].split("the")[1].strip()+" Act")
+                    else:
+                        if len(match.split("Act")[0].split("the"))==1:
+                            match=previousmatch+" "+match
+                        if len(match.split("Act")[0].split("the"))>1:
+                            bill.addLaw(match.split("Act")[0].split("the")[1].strip()+" Act")
+                            print(match.split("Act")[0].split("the")[1].strip()+" Act")
+        """modification = re.findall(Ontario.rgx_modified_title, bill.details)
+        #print(modification)
         if modification==None:
             return
         else:
             for match in modification:
-                modifiedstripped=match.split('modifiant')[1]
+                #print(match)
+                modifiedstripped=match.split('is amended')[0]
                 modifiedLaws = re.split(Ontario.law_delimiter_str, modifiedstripped)
                 for modifiedLaw in modifiedLaws:
-                    if modifiedLaw.find('Loi')!=-1 or modifiedLaw.find('Code')!=-1:
+                    if modifiedLaw.find('Act')!=-1 or modifiedLaw.find('Code')!=-1:
+                        if modifiedLaw.strip() =='Act' or modifiedLaw.strip() == 'Code':
+                            continue
                         dummyvar=1#print(modifiedLaw+"noni")
-                        bill.addLaw(modifiedLaw)
+                        print(modifiedLaw.split(",")[0])
+                        bill.addLaw(modifiedLaw.split(",")[0])"""
 
 
     def sanitizeEventsDate(bill):
@@ -251,7 +287,7 @@ class Ontario( Scraper ):
         # Finding the numbers in the date
         # The first is the date, the second is the year
 
-        day = date.split(' ')[0]
+        day = date.split(' ')[1].split(",")[0]
         year = date.split(' ')[2]
 
         if int(day) < 10:

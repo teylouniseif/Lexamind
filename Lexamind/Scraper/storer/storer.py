@@ -74,6 +74,9 @@ def deleteLaw(law):
     record=Database.createDocumentfromField(law, law.identifier)
     Database.deleteRecord(record, "Lexamind", "Laws", remote_database)
 
+def deleteLawsByLegislature(legislature):
+    Database.deleteAllRecordsBySubstringMatch( "("+legislature.lower()+")", "Lexamind", "Laws",  remote_database)
+
 def retrieveLaw(id):
     encodedlaw=Database.findRecord(id, "Lexamind", "Laws", remote_database)
     if encodedlaw==None:

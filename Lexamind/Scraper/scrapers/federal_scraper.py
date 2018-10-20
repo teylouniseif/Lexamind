@@ -100,7 +100,7 @@ class Canada(Scraper, Spider):
             u'//a[text()="Dernière version"]/@href').extract_first()
         if latest_publication:
             latest_publication = latest_publication.replace('//', '')
-            latest_publication = 'https://www.' + latest_publication
+            latest_publication = 'https://' + latest_publication
             result=Request(latest_publication,
                           meta={'items': items},
                           callback=self.parse_latest_publication)
@@ -118,7 +118,7 @@ class Canada(Scraper, Spider):
             '//li[contains(@class, "Level1")]/a/text()').extract()
 
         row_list = []
-        rows = response.xpath('//*[@style="margin-top: 10pt; text-align: justify; font-size: 0.8rem;font-family: Verdana, Helvetica, sans-serif;font-weight: bold;"]|//*[@style="margin-top: 3pt; text-align: justify; font-size: 0.8rem;font-family: Verdana, Helvetica, sans-serif;font-weight: bold;"]')
+        rows = response.xpath('//*[@style="margin-top: 10pt; text-align: justify; font-family: Verdana, Helvetica, sans-serif;font-weight: bold;"]|//*[@style="margin-top: 10pt; text-align: justify; font-size: 0.8rem;font-family: Verdana, Helvetica, sans-serif;font-weight: bold;"]|//*[@style="margin-top: 3pt; text-align: justify; font-size: 0.8rem;font-family: Verdana, Helvetica, sans-serif;font-weight: bold;"]')
         for row in rows:
             row_text = row.xpath('.//text()').extract()
             row_text = ''.join(row_text)
@@ -128,9 +128,15 @@ class Canada(Scraper, Spider):
         row_dict['Latest Publication'] = ', '.join(row_list)
         row_dict['Table of contents'] = tuple(table_of_contents)
 
+        #print(row_dict['Latest Publication'])
+
         #add bill
         result = dict(response.meta['items'].items() | row_dict.items())
         bill=Bill(self.legislature+result['bill_number_and_title'], self.legislature+result['bill_number_and_title'], self.legislature)
+
+        """if bill.title!="CanadaC-74 Loi portant exécution de certaines dispositions du budget déposé au Parlement le 27 février 2018 et mettant en oeuvre d'autres mesures":
+            yield result
+        else:"""
         bill.setDetails(result['Latest Publication'])
         bill.setHyperlink(response.request.url)
         self.scrapeLawsinBill(bill)
@@ -138,8 +144,6 @@ class Canada(Scraper, Spider):
             if k!='bill_number_and_title' and k!='bill_name' and k!='date':
                 bill.addEvent(k, response.meta['items'][k], None, None)
         self.add_bill(bill)
-
-        yield result
 
     def retrieve_bills(self):
 
@@ -159,6 +163,7 @@ class Canada(Scraper, Spider):
 
     def spider_closed(self, spider):
         self.bills=spider.bills
+        #print(self.bills)
         dummyvar=1#print(self.bills)
         return
 
@@ -167,7 +172,9 @@ class Canada(Scraper, Spider):
             if i==0:
                 continue
             modifiedstripped=bill.details.split("Loi")[i]
+            #print(modifiedstripped+"\n")
             modifiedLaw = re.split(Canada.law_delimiter_str, modifiedstripped)[0]
+            print(modifiedLaw+"\n")
             dummyvar=1#print("Loi"+modifiedLaw)
             bill.addLaw("Loi"+re.compile(r"\(|,|;|\.").split(modifiedLaw)[0])
         for i in range(len(bill.details.split("Code"))-1):

@@ -32,6 +32,7 @@ class User( object):
 
     def LawNamefromOfficaltoBill(self, law):
         billlawname=law.split(",")[0]+" ("+law.split("(")[1].split(")")[0].lower()+")"
+        #print(billlawname)
         dummyvar=1#print(billlawname)
         return billlawname
 
@@ -54,10 +55,17 @@ class Team( object ):
         accounts=retrieveAllAccounts()
         for account in accounts:
             lawnameslist=account['lawnames'].strip("[]").split(",")
+            lawnameslistcleansed=[]
             for i in range(len(lawnameslist)):
-                lawnameslist[i]=lawnameslist[i].strip("\"")
-                lawnameslist[i]=lawnameslist[i].strip("\'").split("(")[0]
-            user=User(account['username'], account['username'], account['password'], lawnameslist)
+                if " - " in lawnameslist[i]:
+                    lawnameslistcleansed.append(lawnameslist[i])
+            for i in range(len(lawnameslistcleansed)):
+                lawnameslistcleansed[i]=lawnameslistcleansed[i].strip("\"")
+                lawnameslistcleansed[i]=lawnameslistcleansed[i].strip("\'").split("(")[0]
+                lawnameslistcleansed[i]=lawnameslistcleansed[i].split(" - ")[1].lower()+", ("+lawnameslistcleansed[i].split(" - ")[0].replace("'", "").strip().lower()+")"
+                #print(lawnameslistcleansed[i].split(" - ")[0].lower())
+                #print(lawnameslistcleansed[i])
+            user=User(account['username'], account['username'], account['password'], lawnameslistcleansed)
             self.users.append(user)
         for user in self.users:
             for law in user.lawnames:

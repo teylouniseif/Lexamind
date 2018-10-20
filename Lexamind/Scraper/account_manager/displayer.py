@@ -43,9 +43,12 @@ class Information( object ):
     def build_update_by_user(self, user):
         updatetext=""
         for lawname in user.lawnames:
+            #print(lawname)
+            #print(user.username)
             strippedlawname=user.LawNamefromOfficaltoBill(lawname)
             cachedLaw=retrieveLaw(strippedlawname)
             if cachedLaw!=None:
+                #print(cachedLaw.title)
                 bills=cachedLaw.getDependantBills()
                 for billid in bills:
                     bill=retrieveBill(billid)
@@ -57,6 +60,8 @@ class Information( object ):
 
     def build_update(self, user, bill, cachedLaw):
         #build html src code
+        if bill==None:
+            return ""
         if bill.legislature=="GazetteQuébec":
             billno=bill.title.split("_")[0]
         else:

@@ -46,6 +46,9 @@ class Bill( object):
 
     def addLaw(self, law):
         dummyvar=1#print(law)
+        for retrievelaw in self.lawnames:
+            if str(law.strip().lower()+" ("+self.legislature.lower()+")")==retrievelaw:
+                return
         sanitizedlaw=str(law.strip().lower()+" ("+self.legislature.lower()+")")#.encode('utf-8')
         self.lawnames.append(sanitizedlaw)
 
