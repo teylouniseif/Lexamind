@@ -22,12 +22,12 @@ import jsonpickle
 
 """y=Canada()
 y.retrieve_bills()
-y.store_bills()"""
+y.store_bills()
 
 y=Ontario()
 y.retrieve_bills()
 y.store_bills()
-"""y=Quebec()
+y=Quebec()
 y.retrieve_bills()
 y.store_bills()"""
 """y=Alberta()

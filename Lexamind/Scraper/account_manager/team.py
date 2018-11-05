@@ -31,7 +31,7 @@ class User( object):
         self.lawnames.append(sanitizedlaw)
 
     def LawNamefromOfficaltoBill(self, law):
-        billlawname=law.split(",")[0]+" ("+law.split("(")[1].split(")")[0].lower()+")"
+        billlawname=law.split(",")[0].strip()+" ("+law.split("(")[1].split(")")[0].lower()+")"
         #print(billlawname)
         dummyvar=1#print(billlawname)
         return billlawname

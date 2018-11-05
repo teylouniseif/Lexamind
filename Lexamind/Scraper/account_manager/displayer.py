@@ -42,9 +42,9 @@ class Information( object ):
 
     def build_update_by_user(self, user):
         updatetext=""
+        #print(user.username)
         for lawname in user.lawnames:
             #print(lawname)
-            #print(user.username)
             strippedlawname=user.LawNamefromOfficaltoBill(lawname)
             cachedLaw=retrieveLaw(strippedlawname)
             if cachedLaw!=None:
@@ -52,7 +52,7 @@ class Information( object ):
                 bills=cachedLaw.getDependantBills()
                 for billid in bills:
                     bill=retrieveBill(billid)
-                    dummyvar=1#print(bill.identifier+"here")
+                    #print(bill.identifier+"here")
                     updatetext+=self.build_update(user, bill, strippedlawname)
         html=self.inject_update_in_template(updatetext)
         update=Update(user.username, user.username, html)
