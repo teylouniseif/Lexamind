@@ -40,9 +40,18 @@ class Information( object ):
         for user in self.users:
             self.build_update_by_user(user)
 
+    def takeLatestDateofBill(billupdate):
+        if billupdate[0] and len(billupdate[0].events)!=0:
+            if billupdate[0].events[-1]["date"]!="N/A":
+                key=billupdate[0].legislature+billupdate[0].events[-1]["date"]
+            else:
+                key=billupdate[0].legislature
+            return key
+        return "AAA"
+
     def build_update_by_user(self, user):
         updatetext=""
-        #print(user.username)
+        billupdates=[]
         for lawname in user.lawnames:
             #print(lawname)
             strippedlawname=user.LawNamefromOfficaltoBill(lawname)
@@ -52,8 +61,12 @@ class Information( object ):
                 bills=cachedLaw.getDependantBills()
                 for billid in bills:
                     bill=retrieveBill(billid)
+                    billupdate=(bill, strippedlawname)
+                    billupdates.append(billupdate)
                     #print(bill.identifier+"here")
-                    updatetext+=self.build_update(user, bill, strippedlawname)
+        billupdates.sort(key=Information.takeLatestDateofBill, reverse=True)
+        for billupdate in billupdates:
+            updatetext+=self.build_update(user, billupdate[0], billupdate[1])
         html=self.inject_update_in_template(updatetext)
         update=Update(user.username, user.username, html)
         storeArchive(update)

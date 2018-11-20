@@ -15,7 +15,7 @@ class Email(object):
 
     server = 'smtp.gmail.com'
     user = 'lexamindcooperathon@gmail.com'
-    password = 'billscraper'
+    password = '1dragonball'
 
     def send_Email( recipient):
 
