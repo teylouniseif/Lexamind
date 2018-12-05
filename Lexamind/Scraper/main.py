@@ -20,7 +20,7 @@ from storer.storer import retrieveLaw, deleteBillsByLegislature, retrieveBillsBy
 import json
 import jsonpickle
 
-"""y=Canada()
+y=Canada()
 y.retrieve_bills()
 y.store_bills()
 y=Ontario()
@@ -28,13 +28,13 @@ y.retrieve_bills()
 y.store_bills()
 y=Quebec()
 y.retrieve_bills()
-y.store_bills()"""
-"""y=Alberta()
+y.store_bills()
+y=Alberta()
 y.retrieve_bills()
-y.store_bills()"""
-"""y=GazetteQuebec()
+y.store_bills()
+y=GazetteQuebec()
 y.retrieve_bills()
-y.store_bills()"""
+y.store_bills()
 #deleteBillsByLegislature("Ontario")
 #deleteLawsByLegislature("Ontario")
 
@@ -52,7 +52,7 @@ x.addLaw("loi sur la protection des renseignements personnels dans le secteur pr
 #second step: add laws
 #x.addLaw("Loi sur le financement des petites entreprises du Canada, LC 1998, c 36 (Canada)")
 
-all=Team()
+"""all=Team()
 #all.addUser(x)
 
 #all.store_users()
@@ -72,4 +72,4 @@ for y in all.users:
 v.build_archives()
 
 #choose the email to send update to
-Email.send_Email("lexamindcooperathon@gmail.com")
+Email.send_Email("lexamindcooperathon@gmail.com")"""

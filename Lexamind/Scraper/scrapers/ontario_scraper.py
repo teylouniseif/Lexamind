@@ -60,8 +60,8 @@ class Ontario( Scraper ):
         #if most_recent:
         #    sessions = [sessions[0]]
         sessions=[sessionsstart[0]]
-        sessions.append(sessionsstart[1])
-        sessions.append(sessionsstart[2])
+        #sessions.append(sessionsstart[1])
+        #sessions.append(sessionsstart[2])
 
         for session in sessions:
             row = session.find('td')
@@ -182,7 +182,7 @@ class Ontario( Scraper ):
 
     # Gets all the text from the detailed info page
     def Extract_Info_Ontario(url):
-        print(url)
+        #print(url)
         try:
             response = requests.get(url)
         except:
@@ -243,13 +243,13 @@ class Ontario( Scraper ):
                         if previousmatch.find('Act')!=-1:
                             if len(previousmatch.split("Act")[0].split("the"))>1:
                                 bill.addLaw(previousmatch.split("Act")[0].split("the")[1].strip()+" Act")
-                                print(previousmatch.split("Act")[0].split("the")[1].strip()+" Act")
+                                #print(previousmatch.split("Act")[0].split("the")[1].strip()+" Act")
                     else:
                         if len(match.split("Act")[0].split("the"))==1:
                             match=previousmatch+" "+match
                         if len(match.split("Act")[0].split("the"))>1:
                             bill.addLaw(match.split("Act")[0].split("the")[1].strip()+" Act")
-                            print(match.split("Act")[0].split("the")[1].strip()+" Act")
+                            #print(match.split("Act")[0].split("the")[1].strip()+" Act")
         """modification = re.findall(Ontario.rgx_modified_title, bill.details)
         #print(modification)
         if modification==None:

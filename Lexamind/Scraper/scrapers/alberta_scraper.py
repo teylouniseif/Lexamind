@@ -68,7 +68,7 @@ class Alberta( Scraper ):
         for row in rows:
             title = row.find('td').text
             # We're only going up to 2016, so the last is the 2015-2016 Legislature
-            if '2014' in title:
+            if '2017' in title:
                 break
 
             cols = row.findAll('td')
