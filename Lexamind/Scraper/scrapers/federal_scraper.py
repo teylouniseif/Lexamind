@@ -151,6 +151,7 @@ class Canada(Scraper, Spider):
         #parl_spider=__import__('federal_scraper.parl_spider')
         #settings.setmodule(parl_spider)
         process = CrawlerProcess({
+        'USER_AGENT': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
         'LOG_STDOUT' : False,
         'LOG_FILE' : 'scrapy_output.txt',
         'ITEM_PIPELINES': {
