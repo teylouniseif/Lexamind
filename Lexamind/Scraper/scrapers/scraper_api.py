@@ -49,7 +49,7 @@ class Bill( object):
         for retrievelaw in self.lawnames:
             if str(law.strip().lower()+" ("+self.legislature.lower()+")")==retrievelaw:
                 return
-        sanitizedlaw=str(law.strip().lower()+" ("+self.legislature.lower()+")")#.encode('utf-8')
+        sanitizedlaw=law.strip().lower()+" ("+self.legislature.lower()+")"#.encode('utf-8')
         self.lawnames.append(sanitizedlaw)
 
 class Law( object):

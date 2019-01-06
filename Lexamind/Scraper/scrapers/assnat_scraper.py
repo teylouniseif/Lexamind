@@ -11,6 +11,7 @@ from PyPDF2 import PdfFileReader
 import feedparser
 import os, re
 import operator
+import base64
 from datetime import datetime
 testing = True
 
@@ -283,7 +284,8 @@ class Quebec( Scraper ):
         for pageNum in range(pdfFile.getNumPages()):
             currentPage = pdfFile.getPage(pageNum)
             try:
-                data += currentPage.extractText()
+                data += currentPage.extractText().replace("™","’").replace("˜","fi")
+                #print(data)
             except:
                 continue
         fp.close()
@@ -423,7 +425,9 @@ class Quebec( Scraper ):
                         strg=next(it)
 
                         dummyvar=1#print(law)
+
                         bill.addLaw(re.compile(r".*œ\s|\s\(|;|\.").split(law)[1])
+                        print(re.compile(r".*œ\s|\s\(|;|\.").split(law)[1])
 
                         while strg.isdigit() or strg.strip()=='':
                             index+=1
