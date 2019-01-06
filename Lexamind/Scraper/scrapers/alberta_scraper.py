@@ -14,6 +14,7 @@ testing = False
 import re
 import dateutil.parser as dparser
 from datetime import datetime
+import subprocess
 
 from .scraper_api import Scraper, Bill
 
@@ -28,9 +29,11 @@ class Alberta( Scraper ):
     # Takes in a url, checks the connection and returns the soup
     def Make_Soup(url):
 
+        user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
+        headers = {'User-Agent': user_agent}
         # If there's an issue connecting to the internet, end the program
         try:
-            response = requests.get(url)
+            response = requests.get(url, headers=headers)
         except:
             dummyvar=1#print("There was an issue connecting to the internet")
             exit()
@@ -181,21 +184,46 @@ class Alberta( Scraper ):
         # All the pages I've seen have been in pdf format
         pdf = dl.find('a')['href']
 
-        bill_info.setHyperlink(pdf)
+        bill_info.setHyperlink("https://www.assembly.ab.ca"+pdf)
 
-        return Alberta.Extract_Pdf(pdf)
+        return Alberta.Extract_Pdf("https://www.assembly.ab.ca"+pdf)
 
+    def decompress_pdf(temp_buffer):
+        temp_buffer.seek(0)  # Make sure we're at the start of the file.
+
+        process = subprocess.Popen(['pdftk.exe',
+                                    '-',  # Read from stdin.
+                                    'output',
+                                    '-',  # Write to stdout.
+                                    'uncompress'],
+                                    stdin=temp_buffer.getvalue(),
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+        print("\nnow\n")
+        stdout, stderr = process.communicate()
+        return StringIO(stdout)
 
     # Downloads the pdf and extracts the text
     def Extract_Pdf(url):
+        print(url)
         data = ""
 
-        onlineFile = urlopen(Request(url)).read()
-        pdfFile = PdfFileReader(BytesIO(onlineFile))
+        user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
+        onlineFile = urlopen(Request(url,headers={'User-Agent': user_agent})).read()
+        try:
+        #temporarylocation="testout.pdf"
+        #with open(temporarylocation,'wb') as out: ## Open temporary file as bytes
+        #    out.write(BytesIO(onlineFile).read())
+        #pdfFile = PdfFileReader(Alberta.decompress_pdf(out))
+            pdfFile = PdfFileReader(BytesIO(onlineFile))
+            for pageNum in range(pdfFile.getNumPages()):
+                    currentPage = pdfFile.getPage(pageNum)
+                    data += currentPage.extractText()#.replace("\n", "\s")
+        except:
+            print("There was an issue connecting to the internet")
+            return ""
 
-        for pageNum in range(pdfFile.getNumPages()):
-                currentPage = pdfFile.getPage(pageNum)
-                data += currentPage.extractText()#.replace("\n", "\s")
+        print("we here")
 
         return data
 
