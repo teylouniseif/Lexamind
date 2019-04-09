@@ -13,6 +13,7 @@ from io import BytesIO
 import os, re
 import csv
 import copy
+import datetime
 
 encrypted_file = "encr.pdf"
 decrypted_file = "decry.pdf"
@@ -65,7 +66,7 @@ class GazetteQuebec( Scraper ):
 
     # The main function to scrape Publications du Quebec
     # The end year is the oldest year that we'll scrape pdfs for
-    def retrieve_bills(self, start_year = 2018):
+    def retrieve_bills(self):
         # This url is very long because the original url kept redirecting to the main page
         url = "http://www2.publicationsduquebec.gouv.qc.ca/gazette_officielle/partie_2f-liste.php"
         soup = GazetteQuebec.Make_Soup(url)
@@ -77,6 +78,8 @@ class GazetteQuebec( Scraper ):
         data = []
 
         rows = soup.find_all('div')
+
+        start_year = datetime.datetime.now().year
 
         for r in rows:
             if 'style' in r.attrs and 'background' in r.attrs['style']:

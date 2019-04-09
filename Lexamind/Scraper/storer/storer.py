@@ -41,6 +41,9 @@ def deleteBill(bill):
 def deleteBillsByLegislature(legislature):
     Database.deleteAllRecordsBySubstringMatch( legislature, "Lexamind", "Bills",  remote_database)
 
+def deleteAllBills():   
+    Database.deleteAllRecords("Lexamind", "Bills", remote_database)
+
 def storeUser(user):
     record=Database.createDocumentfromField(user, user.identifier)
     Database.addRecord(record, "Lexamind", "Users", remote_database)
@@ -76,6 +79,9 @@ def deleteLaw(law):
 
 def deleteLawsByLegislature(legislature):
     Database.deleteAllRecordsBySubstringMatch( "("+legislature.lower()+")", "Lexamind", "Laws",  remote_database)
+
+def deleteAllLaws():    
+    Database.deleteAllRecords("Lexamind", "Laws", remote_database)
 
 def retrieveLaw(id):
     encodedlaw=Database.findRecord(id, "Lexamind", "Laws", remote_database)

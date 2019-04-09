@@ -18,7 +18,7 @@ class Canada(Scraper, Spider):
     name = 'parl_ca'
     allowed_domains = ['parl.ca']
     start_urls = (
-        'https://www.parl.ca/LegisInfo/Home.aspx?ParliamentSession=42-1&Page=1',
+        'https://www.parl.ca/LegisInfo/Home.aspx?',
     )
 
     rgx_modified_title_list = [".*Loi.*",".*Code.*"]

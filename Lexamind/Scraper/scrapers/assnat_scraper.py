@@ -68,7 +68,7 @@ class Quebec( Scraper ):
             rss_data = Quebec.find_feed_updates()
             return rss_data
 
-        url = "http://www.assnat.qc.ca/fr/travaux-parlementaires/projets-loi/projets-loi-42-1.html"
+        url = "http://www.assnat.qc.ca/fr/travaux-parlementaires/projets-loi"
         base = "http://www.assnat.qc.ca"
 
         soup = Quebec.Make_Soup(url)

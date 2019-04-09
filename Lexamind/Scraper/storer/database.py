@@ -57,6 +57,10 @@ class Database( object ):
         col=Database.findCollection(database, collection, database_url)
         return col.find_one({'_id':id})
 
+    def deleteAllRecords( database, collection, database_url="localhost:27017"):
+        col=Database.findCollection(database, collection, database_url)       
+        col.delete_many({})
+
     def findAllRecordsBySubstringMatch( substring, database, collection,  database_url="localhost:27017"):
         col=Database.findCollection(database, collection, database_url)
         return col.find({'_id': { '$regex' : substring}})

@@ -67,11 +67,13 @@ class Alberta( Scraper ):
 
         rows = soup.find('div', attrs = {"id":"mainbox"}).findAll('tr')
 
+        start_year = str(datetime.now().year-2)
+
         urls = {}
         for row in rows:
             title = row.find('td').text
             # We're only going up to 2016, so the last is the 2015-2016 Legislature
-            if '2017' in title:
+            if start_year in title:
                 break
 
             cols = row.findAll('td')
