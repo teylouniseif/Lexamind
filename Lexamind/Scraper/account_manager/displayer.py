@@ -87,7 +87,7 @@ class Information( object ):
             date="N/A"
         hyperlink="N/A"
         if hasattr(bill, 'hyperlink'):
-            hyperlink="<a href="+bill.hyperlink+">Contenu</a>"
+            hyperlink="<a href="+bill.hyperlink+">Content</a>"
         lawtitle=bill.legislature+" - " +cachedLaw.split("(")[0]
         html="                <tr class=\"data-row new\" style=\"padding: 0;vertical-align: top;text-align: left;\">\r\n"\
     		"                  <td class=\"even\" style=\"border-bottom: 1px solid rgba(0,0,0,0.2);border-collapse: collapse !important;word-wrap: break-word;-webkit-hyphens: auto;-moz-hyphens: auto;hyphens: auto;padding: 10px;vertical-align: top;text-align: left;font-family: 'Helvetica', sans-serif; width: 30%;\">"+billno+"</td>\r\n"\
