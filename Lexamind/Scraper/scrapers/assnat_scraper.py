@@ -122,7 +122,7 @@ class Quebec( Scraper ):
         self.bills=databill
 
         Quebec.sort_data(data)
-        Quebec.Convert_To_Csv(data)
+        #Quebec.Convert_To_Csv(data)
         return data
 
     # Goes through all the data and replaces missing values with "N/A"
@@ -290,7 +290,7 @@ class Quebec( Scraper ):
                 continue
         fp.close()
 
-        os.system("del " + temp_pdf)
+        os.system("rm " + temp_pdf)
 
         return data
 
