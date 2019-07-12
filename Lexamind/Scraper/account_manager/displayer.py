@@ -53,17 +53,14 @@ class Information( object ):
         updatetext=""
         billupdates=[]
         for lawname in user.lawnames:
-            #print(lawname)
             strippedlawname=user.LawNamefromOfficaltoBill(lawname)
             cachedLaw=retrieveLaw(strippedlawname)
             if cachedLaw!=None:
-                #print(cachedLaw.title)
                 bills=cachedLaw.getDependantBills()
                 for billid in bills:
                     bill=retrieveBill(billid)
                     billupdate=(bill, strippedlawname)
                     billupdates.append(billupdate)
-                    #print(bill.identifier+"here")
         billupdates.sort(key=Information.takeLatestDateofBill, reverse=True)
         for billupdate in billupdates:
             updatetext+=self.build_update(user, billupdate[0], billupdate[1])
