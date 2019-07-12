@@ -8,6 +8,7 @@ from storer.storer import storeUser, retrieveUser, retrieveUsersByTeam, storeLaw
 from scrapers.scraper_api import Law
 from collections import namedtuple
 import jsonpickle, re, json
+import base64
 
 class User( object):
 
@@ -57,19 +58,16 @@ class Team( object ):
             lawnameslist=account['lawnames'].strip("[]").split(",")
             lawnameslistcleansed=[]
             for i in range(len(lawnameslist)):
+                lawnameslist[i]=str(base64.b64decode(lawnameslist[i]), "utf-8")
                 if " - " in lawnameslist[i]:
                     lawnameslistcleansed.append(lawnameslist[i])
             for i in range(len(lawnameslistcleansed)):
                 lawnameslistcleansed[i]=lawnameslistcleansed[i].strip("\"")
                 lawnameslistcleansed[i]=lawnameslistcleansed[i].strip("\'").split("(")[0]
                 lawnameslistcleansed[i]=lawnameslistcleansed[i].split(" - ")[1].lower()+", ("+lawnameslistcleansed[i].split(" - ")[0].replace("'", "").strip().lower()+")"
-                #print(lawnameslistcleansed[i].split(" - ")[0].lower())
-                #print(lawnameslistcleansed[i])
+ 
             user=User(account['username'], account['username'], account['password'], lawnameslistcleansed)
             self.users.append(user)
-        for user in self.users:
-            for law in user.lawnames:
-                dummyvar=1#print("this is it: "+account['username']+law)
 
     def store_users(self):
         for user in self.users:
