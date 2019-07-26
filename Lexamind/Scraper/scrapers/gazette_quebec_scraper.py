@@ -221,8 +221,8 @@ class GazetteQuebec( Scraper ):
                 data += currentPage.extractText()
             fp.close()
             # delete the files so we can reuse them
-            os.system("del " + encrypted_file)
-            os.system("del " + decrypted_file)
+            os.system("rm " + encrypted_file)
+            os.system("rm " + decrypted_file)
 
         else:
             for pageNum in range(pdfFile.getNumPages()):
