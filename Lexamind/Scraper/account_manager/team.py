@@ -58,7 +58,10 @@ class Team( object ):
             lawnameslist=account['lawnames'].strip("[]").split(",")
             lawnameslistcleansed=[]
             for i in range(len(lawnameslist)):
-                lawnameslist[i]=str(base64.b64decode(lawnameslist[i]), "utf-8")
+                try:
+                    lawnameslist[i]=str(base64.b64decode(lawnameslist[i]), "utf-8")
+                except:
+                    lawnameslist[i]=""    
                 if " - " in lawnameslist[i]:
                     lawnameslistcleansed.append(lawnameslist[i])
             for i in range(len(lawnameslistcleansed)):
