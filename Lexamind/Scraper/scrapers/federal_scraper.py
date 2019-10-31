@@ -1,4 +1,4 @@
-#! python2
+#! python3
 # -*- coding: utf-8 -*-
 
 from scrapy.crawler import CrawlerProcess
